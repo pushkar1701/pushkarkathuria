@@ -19,7 +19,7 @@ export function ProjectsSection() {
             Selected Work
           </p>
           <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            Proof points across SaaS, enterprise, and product.
+            A few things I&apos;m proud of shipping.
           </h2>
         </Reveal>
 

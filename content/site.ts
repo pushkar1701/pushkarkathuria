@@ -10,7 +10,7 @@ export const siteConfig = {
 export const seo = {
   title: "Pushkar Kathuria — Frontend Technical Lead & UI Architect",
   description:
-    "Frontend Technical Lead / UI Architect with nearly 14 years building scalable, accessible React applications, design systems, and enterprise SaaS. Open to remote and relocation.",
+    "I build React and TypeScript products people actually enjoy using — design systems, dashboards, and enterprise UIs. Nearly 14 years in. Open to remote and relocation.",
   keywords: [
     "Pushkar Kathuria",
     "Frontend Technical Lead",
@@ -28,34 +28,33 @@ export const seo = {
 export const hero = {
   headline: "Frontend Technical Lead / UI Architect",
   subheadline:
-    "Nearly 14 years building scalable, accessible, high-performance web applications across SaaS, enterprise platforms, e-commerce, analytics, and media.",
-  availability:
-    "Open to Senior / Staff Frontend & UI Architect roles · Remote & Relocation",
+    "I spend my days turning messy product ideas into clear, fast interfaces — design systems, dashboards, and the kind of UI that holds up when the team and the product grow.",
+  availability: "Looking for Senior / Staff Frontend or UI Architect roles · Remote or relocate",
 } as const;
 
 export const about = {
   summary:
-    "Frontend Technical Lead / UI Architect with nearly 14 years of experience building scalable, accessible, and high-performance web applications. Expert in React, TypeScript, component architecture, design systems, and frontend quality standards — with a track record of leading delivery, mentoring developers, and collaborating across product, design, backend, QA, and analytics.",
+    "I've been building web UIs for nearly 14 years — SaaS, e-commerce, hotel sites, streaming apps, analytics tools. What I care about most is the space between product, design, and engineering: making sure the thing we ship is usable, accessible, and not a nightmare to maintain six months later.",
   superpowers: [
     {
-      title: "Frontend Architecture & Design Systems",
+      title: "Design systems that stick",
       description:
-        "Custom component libraries and UI architecture patterns adopted across product teams.",
+        "I build component libraries teams actually reuse — not slideware that dies after the first sprint.",
     },
     {
-      title: "Technical Leadership",
+      title: "Leading without the noise",
       description:
-        "Leading frontend delivery, mentoring developers, code reviews, and cross-functional programs.",
+        "I help teams ship: architecture chats, code reviews, mentoring, and keeping delivery honest.",
     },
     {
-      title: "Accessibility & Performance",
+      title: "Accessibility & speed",
       description:
-        "WCAG implementation, Lighthouse audits, and ongoing UI quality standards.",
+        "WCAG, Lighthouse, and the boring checks that make products feel solid for everyone.",
     },
     {
-      title: "Product Delivery at Scale",
+      title: "From idea to release",
       description:
-        "SaaS dashboards, CMS platforms, e-commerce, OTT, analytics, and mobile products.",
+        "Dashboards, auth, CMS, e-commerce, TV apps, mobile — I've taken features all the way through.",
     },
   ],
 } as const;
@@ -63,11 +62,11 @@ export const about = {
 export const projects = [
   {
     slug: "datalogz-bi-ops",
-    title: "Enterprise BI Ops SaaS Platform",
+    title: "Datalogz BI Ops",
     company: "Datalogz",
-    metric: "Founding engineer & UI tech lead · 6–7 product areas",
+    metric: "Design system and realtime dashboards for an enterprise analytics product",
     description:
-      "Owned React/TypeScript frontend delivery across dashboards, reports, admin/settings, user management, authentication, alerts, realtime updates, data visualization, graph visualization, and a custom design system.",
+      "As a founding engineer on the UI side, I shaped how the product looks and feels — dashboards, reports, auth, alerts, live updates, and graph views — so the team could build faster without reinventing every screen.",
     tags: ["React", "TypeScript", "Tailwind", "D3.js", "Sigma.js", "WebSockets"],
     url: "https://www.datalogz.io/",
     featured: true,
@@ -75,66 +74,66 @@ export const projects = [
   },
   {
     slug: "semiconductor-redesign",
-    title: "Global Semiconductor Website Redesign & Migration",
+    title: "Semiconductor site redesign",
     company: "Deloitte USI",
-    metric: "Co-led 20 frontend developers in a 50+ member program",
+    metric: "A global product site rebuild — search, catalog pages, and a cleaner path for customers",
     description:
-      "Sitecore redesign/migration spanning frontend, backend, QA, and analytics — global navigation, Algolia search, PLP/PDP, landing pages, carousels, accessibility, and performance.",
+      "I helped drive the frontend for a Sitecore migration: navigation, Algolia search, listing and detail pages, landing modules, accessibility, and performance — alongside a large program across frontend, backend, QA, and analytics.",
     tags: ["Sitecore", "JavaScript", "Handlebars", "Algolia", "Lighthouse"],
     featured: true,
     span: "md" as const,
   },
   {
     slug: "hospitality-platform",
-    title: "Global Hospitality Hotel Website Platform",
+    title: "Hotel website platform",
     company: "Deloitte USI",
-    metric: "Led 5-member frontend track for large-scale AEM platform",
+    metric: "Reusable AEM components for hotel sites that need to stay consistent at scale",
     description:
-      "Built reusable AEM-ready components with OO JavaScript, Handlebars, and SCSS — header/footer, navigation, hero media, carousels, galleries, dining modules, and room-detail cards.",
+      "I led the frontend work on a shared component set — headers, heroes, galleries, dining modules, room cards — so hotel pages could look cohesive without every site inventing its own UI.",
     tags: ["AEM", "JavaScript", "Handlebars", "SCSS", "Accessibility"],
     featured: true,
     span: "md" as const,
   },
   {
     slug: "telecom-analytics-portal",
-    title: "US Telecom/Media Analytics Portal",
+    title: "Telecom analytics portal",
     company: "Deloitte USI",
-    metric: "Sole frontend developer for internal analytics platform",
+    metric: "Internal dashboards that made reporting less painful for the business",
     description:
-      "AngularJS/Highcharts analytics portal with dashboards, filters, reports, REST API integrations, reusable components, and export/download workflows for business decision-making.",
+      "I was the only frontend person on an AngularJS and Highcharts portal — filters, charts, exports, and the glue that let teams pull reports without waiting on another ticket.",
     tags: ["AngularJS", "Highcharts", "REST APIs", "Dashboards"],
     featured: false,
     span: "sm" as const,
   },
   {
     slug: "new-balance-ecommerce",
-    title: "North American Athletic Retailer eCommerce",
+    title: "Athletic retail e-commerce",
     company: "Deloitte USI",
-    metric: "Senior frontend contributor · SFCC US & Canada",
+    metric: "Shopping flows that had to work on real devices, not just demos",
     description:
-      "Salesforce Commerce Cloud experience across PLP, PDP, cart, mini cart, search, filtering, sorting, header, footer, and responsive layouts using Vanilla JavaScript, jQuery, and SCSS.",
+      "I worked on a Salesforce Commerce Cloud storefront — listing pages, product detail, cart, search, and filters — keeping the UI consistent across US and Canada experiences.",
     tags: ["Salesforce Commerce Cloud", "JavaScript", "jQuery", "SCSS"],
     featured: false,
     span: "sm" as const,
   },
   {
     slug: "ott-streaming",
-    title: "Web & Samsung TV OTT Applications",
+    title: "Web & Samsung TV streaming",
     company: "Cognizant",
-    metric: "React OTT for US telecom/media · web & Samsung TV",
+    metric: "Live TV and on-demand UI that works with a remote, not just a mouse",
     description:
-      "Live TV streaming UI, VOD listings/details, player controls, search, profiles, watchlist/favorites, bookmarking, and Samsung TV remote-control navigation with focus handling.",
+      "I built React screens for streaming — live TV, VOD, player controls, profiles, watchlists — and spent real time getting Samsung TV focus and remote navigation to feel natural.",
     tags: ["React", "OTT", "Samsung TV", "Performance"],
     featured: false,
     span: "sm" as const,
   },
   {
     slug: "bonafide-losers",
-    title: "Bonafide Losers — Independent Product Work",
-    company: "Personal",
-    metric: "5 iOS apps · Flutter · AI-assisted development",
+    title: "Bonafide Losers",
+    company: "Side projects",
+    metric: "Five iOS puzzle apps shipped end to end — design through App Store",
     description:
-      "Built and launched ZippySum, OddZap, ColorRush IQ, FlashGrid, and RuleBlink — owning UI/UX, development, release readiness, support pages, and product positioning. Earlier Android work included an app with 50K+ Play Store downloads.",
+      "ZippySum, OddZap, ColorRush IQ, FlashGrid, and RuleBlink. I did the UI, the builds, the support pages, and the polish. Earlier, one of my Android apps crossed 50K Play Store downloads before I retired it.",
     tags: ["Flutter", "iOS", "ChatGPT", "Cursor"],
     url: "https://bonafide-losers.vercel.app/apps",
     featured: true,
@@ -148,16 +147,16 @@ export const experience = [
     company: "Datalogz",
     role: "Founding Engineer / UI Technical Lead",
     dates: "Apr 2024 — Present",
-    location: "Remote / US-India",
-    context: "Enterprise BI Ops SaaS · React · TypeScript · Design Systems · Data Visualization",
+    location: "Remote / US–India",
+    context: "Enterprise BI Ops SaaS · React · TypeScript · Design systems",
     highlights: [
-      "Act as a technical lead within a lean 15-member product team, guiding frontend delivery, architecture discussions, sprint planning, estimation, code reviews, task breakdown, release coordination, and developer mentoring.",
-      "Built a custom design system with approximately 15–20 reusable components using React, TypeScript, Tailwind CSS, SCSS, and UI architecture patterns adopted across the product by the engineering team.",
-      "Own frontend development across 6–7 major product areas, including dashboards, reports, admin/settings, user management, authentication flows, alerts, realtime WebSocket updates, data visualization, and graph/network visualization.",
-      "Develop feature-rich UI experiences with React, TypeScript, Redux, D3.js, Sigma.js, REST APIs, authentication flows, WebSockets, React Testing Library, Vite, ESLint, Prettier, and npm.",
-      "Partner with product, design, and backend teams to translate UI/UX flows into scalable, accessible, performant frontend features and release-ready product experiences.",
-      "Drive ongoing performance improvements, duplicate-code reduction, and frontend maintainability through refactoring, SonarQube analysis, code-quality reviews, and reusable component patterns.",
-      "Conduct recurring accessibility audits and implement monthly UI/accessibility enhancements to improve product usability and frontend quality standards.",
+      "I help steer frontend work on a small product team — architecture, planning, reviews, releases, and mentoring.",
+      "I built a design system of about 15–20 components (React, TypeScript, Tailwind, SCSS) that the rest of engineering now uses.",
+      "I own UI across most of the product: dashboards, reports, settings, users, auth, alerts, live updates, charts, and network graphs.",
+      "Day to day I ship with React, Redux, D3, Sigma.js, REST, WebSockets, and a Vite-based toolchain with solid testing habits.",
+      "I sit with product and design early so UX ideas turn into something we can actually ship and support.",
+      "I keep chipping away at debt — refactors, SonarQube, less duplicate code, components that don't fight you later.",
+      "I run regular accessibility checks and small monthly UI improvements so quality doesn't only show up at launch.",
     ],
     featured: true,
   },
@@ -167,18 +166,16 @@ export const experience = [
     role: "Senior Consultant",
     dates: "Apr 2019 — Mar 2024",
     location: "Delhi, India",
-    context: "Frontend Technical Leadership · Enterprise Web Platforms · CMS · eCommerce · Analytics",
+    context: "Enterprise web · CMS · e-commerce · analytics",
     highlights: [
-      "Led frontend delivery across enterprise web, CMS, e-commerce, analytics, and internal platform initiatives — sprint planning, work allocation, estimation, code reviews, technical design, release coordination, mentoring, hiring support, and performance feedback.",
-      "Co-led the frontend track for a global semiconductor client website redesign and migration, coordinating 20 frontend developers within a 50+ member cross-functional program spanning frontend, backend, QA, and analytics.",
-      "Owned frontend execution for the semiconductor program across Sitecore templates/components, Vanilla JavaScript, Handlebars, responsive layouts, accessibility implementation/testing using Lighthouse, performance improvements, analytics integration, and frontend defect reduction.",
-      "Delivered major UI areas for the semiconductor platform, including global header/navigation, Algolia-powered search, product listing pages, product detail pages, landing pages, carousel modules, responsive layouts, and analytics instrumentation.",
-      "Led a 5-member frontend team for a global hospitality client, building reusable AEM-ready UI components using object-oriented JavaScript, Handlebars markup, and SCSS for a large-scale hotel website platform.",
-      "Built hospitality UI modules including global header/footer, navigation, hero media sections, reusable carousels, photo galleries, property overview blocks, stylized image/media components, dining carousel modules, and room-detail cards with image carousels.",
-      "Improved UI consistency, component reusability, AEM developer efficiency, responsive behavior, accessibility, page-performance quality, and major release delivery for the hospitality platform.",
-      "Served as a senior frontend contributor for a North American athletic retailer e-commerce experience using Salesforce Commerce Cloud, Vanilla JavaScript, jQuery, and SCSS across PLP, PDP, cart, mini cart, search, filtering, sorting, header, footer, and responsive layouts.",
-      "Worked as the sole developer for a US telecom/media client analytics portal using AngularJS, Highcharts, REST APIs, dashboards, filters, reports, reusable components, and export/download workflows.",
-      "Contributed briefly to an aerospace manufacturing client Vue.js application, supporting REST API integrations, reusable Vue components, responsive layouts, performance improvements, and accessibility fixes.",
+      "I led frontend delivery across several client programs — planning, reviews, mentoring, hiring help, and getting releases over the line.",
+      "On a semiconductor site rebuild, I co-led the frontend with a large cross-functional group and helped keep navigation, search, catalog pages, and landing modules moving.",
+      "That work covered Sitecore components, Handlebars, responsive layouts, Lighthouse-backed accessibility, performance, and fewer UI defects over time.",
+      "For a hospitality client, I led a small frontend team building AEM-ready components hotels could reuse — headers, heroes, galleries, dining blocks, room cards.",
+      "The goal was consistency: same building blocks, better performance, and AEM developers who didn't have to reinvent every page.",
+      "On an athletic retail storefront (Salesforce Commerce Cloud), I worked through listing, detail, cart, search, and filters for US and Canada.",
+      "I was the sole frontend developer on a telecom analytics portal — AngularJS, Highcharts, filters, exports — so internal teams could see the data themselves.",
+      "I also spent a short stretch on a Vue.js app for an aerospace client: APIs, reusable components, responsive layout, and accessibility fixes.",
     ],
     featured: true,
   },
@@ -190,7 +187,7 @@ export const experience = [
     location: "Delhi, India",
     context: "Healthcare SaaS · Angular · SCSS",
     highlights: [
-      "Briefly contributed to healthcare SaaS client interfaces using Angular and SCSS, supporting dashboard UI updates, REST API integration, bug fixing, and frontend maintenance.",
+      "I helped with clinical dashboard UI on a healthcare SaaS product — Angular, SCSS, API wiring, bug fixes, and day-to-day maintenance.",
     ],
     featured: false,
   },
@@ -200,13 +197,12 @@ export const experience = [
     role: "Associate",
     dates: "May 2016 — Dec 2018",
     location: "Delhi, India",
-    context: "React · OTT Platforms · Web & Samsung TV Applications",
+    context: "React · Streaming apps · Web & Samsung TV",
     highlights: [
-      "Worked as an individual contributor in a 3–5 member frontend team on React-based OTT applications for a US telecom/media client across web and Samsung TV platforms.",
-      "Built features across live TV streaming UI, video-on-demand listings/details, player controls, search, user profiles, watchlist/favorites, bookmarking, API integrations, reusable React components, performance improvements, production bug fixes, and support.",
-      "Implemented Samsung TV remote-control navigation and focus-handling interactions to improve the large-screen OTT user experience.",
-      "Improved live/on-demand streaming UX, reusable component consistency, TV navigation behavior, and frontend performance across React-based OTT screens.",
-      "Briefly contributed to a React-based marketing preview portal for a premium media and entertainment client.",
+      "I built React streaming experiences for a US media client on web and Samsung TV — live TV, VOD, players, search, profiles, and watchlists.",
+      "TV remotes are unforgiving; I spent a lot of time on focus order and navigation so the big-screen UX felt intentional.",
+      "I also helped improve performance and keep components consistent across those screens.",
+      "For a short stretch I worked on a React marketing preview portal for a premium entertainment brand.",
     ],
     featured: false,
   },
@@ -216,10 +212,10 @@ export const experience = [
     role: "Software Engineer",
     dates: "Jul 2015 — May 2016",
     location: "Delhi, India · Onsite Mexico",
-    context: "Sencha Ext JS · Sencha Touch · Enterprise Mobility · Client Exposure",
+    context: "Sencha Ext JS · Sencha Touch · Mobile enterprise apps",
     highlights: [
-      "Contributed as a junior frontend developer to a Sencha-based redesign for a global building materials client order management system across Sencha Ext JS web and Sencha Touch mobile applications.",
-      "Traveled onsite to Mexico for a week-long client visit to understand application architecture, product workflows, implementation context, and stakeholder expectations.",
+      "I worked on a Sencha redesign of an order management system for a global building-materials company — web and mobile.",
+      "I spent a week onsite in Mexico with the client to learn how the product was used in the real world, not just in tickets.",
     ],
     featured: false,
   },
@@ -229,9 +225,9 @@ export const experience = [
     role: "Software Engineer",
     dates: "Oct 2014 — Jul 2015",
     location: "Delhi, India",
-    context: "IBM Worklight · jQuery · Hybrid Mobile Applications",
+    context: "IBM Worklight · jQuery · Hybrid mobile",
     highlights: [
-      "Worked on an internal transport management application using IBM Worklight and jQuery, contributing to mobile app UI development, hybrid mobile screens, API integration, forms/validation, bug fixing, maintenance, and internal tool enhancements.",
+      "I built screens for an internal transport management app on IBM Worklight and jQuery — forms, API calls, bug fixes, and small enhancements.",
     ],
     featured: false,
   },
@@ -241,9 +237,9 @@ export const experience = [
     role: "Associate Support Consultant",
     dates: "Sep 2013 — Aug 2014",
     location: "Delhi, India",
-    context: "Technical Support · Enterprise Workflow Products",
+    context: "Technical support · Enterprise workflow products",
     highlights: [
-      "Provided technical support for enterprise email/workflow products, handling issue troubleshooting, resolution coordination, product workflow understanding, and team documentation.",
+      "I started out in support — troubleshooting enterprise email and workflow products, closing tickets, and writing things down so the next person didn't have to guess.",
     ],
     featured: false,
   },
@@ -309,23 +305,23 @@ export const skills = {
 
 export const recognition = [
   {
-    title: "Deloitte Spot & Applause Awards",
+    title: "Deloitte awards",
     detail:
-      "Received 2 Spot Awards and 1 Applause Award at Deloitte USI for project delivery, frontend leadership, and team contribution.",
+      "Two Spot Awards and an Applause Award for delivery and leadership — the kind of recognition that usually means the hard releases actually shipped.",
   },
   {
-    title: "Pre-Sales & Solutioning Recognition",
+    title: "Helping win a big engagement",
     detail:
-      "Recognized by Deloitte senior leadership for supporting pre-sales and solutioning that helped secure a major global semiconductor client — including frontend POC development, client demo support, solution architecture input, estimation, delivery planning, and discovery/requirements understanding.",
+      "Deloitte leadership called out the pre-sales work I did on a semiconductor pitch: POC UI, demos, estimation, and helping the team understand what the client actually needed.",
   },
   {
     title: "GATE 2012",
-    detail: "Qualified GATE 2012 with 89.56 percentile.",
+    detail: "Cleared GATE with an 89.56 percentile.",
   },
   {
     title: "Bonafide Losers",
     detail:
-      "Built and launched 5 iOS apps (ZippySum, OddZap, ColorRush IQ, FlashGrid, RuleBlink) using Flutter and AI-assisted tools. Earlier Android work included an app with 50K+ Play Store downloads.",
+      "Five iOS apps out in the world under my own label. Years earlier, an Android app of mine hit 50K+ downloads on the Play Store before I took it down.",
   },
 ] as const;
 

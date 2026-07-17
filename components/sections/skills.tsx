@@ -3,11 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/motion/reveal";
 
 const categories = [
-  { key: "frontend" as const, label: "Frontend & Architecture" },
-  { key: "visualization" as const, label: "Styling & Visualization" },
-  { key: "platforms" as const, label: "Earlier Platform Experience" },
-  { key: "leadership" as const, label: "Leadership & Delivery" },
-  { key: "tools" as const, label: "Tools, APIs & Quality" },
+  { key: "frontend" as const, label: "Frontend & how I structure UI" },
+  { key: "visualization" as const, label: "Styling & visualization" },
+  { key: "platforms" as const, label: "Platforms I've worked on" },
+  { key: "leadership" as const, label: "How I work with people" },
+  { key: "tools" as const, label: "Tools & everyday stack" },
 ];
 
 export function SkillsSection() {
@@ -19,7 +19,7 @@ export function SkillsSection() {
             Skills
           </p>
           <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            React, TypeScript, and the craft around great UI.
+            What I reach for when I build.
           </h2>
         </Reveal>
 

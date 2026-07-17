@@ -4,7 +4,7 @@ import { ArrowLeft, PenLine } from "lucide-react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { LinkButton } from "@/components/link-button";
-import { siteConfig, seo } from "@/content/site";
+import { siteConfig } from "@/content/site";
 import { getAllPosts } from "@/lib/blog";
 
 export const metadata: Metadata = {
@@ -44,26 +44,25 @@ export default function BlogPage() {
             Blog
           </p>
           <h1 className="mt-3 font-heading text-4xl font-bold tracking-tight sm:text-5xl">
-            Writing on frontend craft
+            Things I want to write down
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Notes on React architecture, design systems, accessibility, and
-            building UI at scale. Part of {seo.title.split("—")[0].trim()}
-            &apos;s personal site.
+            Short notes on React, design systems, accessibility, and how UI work
+            actually gets done — when I get around to publishing them.
           </p>
 
           {posts.length === 0 ? (
             <div className="mt-16 flex flex-col items-center rounded-3xl border border-dashed border-border/80 bg-card/30 px-8 py-16 text-center">
               <PenLine className="size-10 text-brand" />
               <h2 className="mt-4 font-heading text-xl font-semibold">
-                Writing coming soon
+                Nothing here yet
               </h2>
               <p className="mt-2 max-w-md text-muted-foreground">
-                The blog is set up and ready for MDX posts. Check back for
-                articles on frontend architecture and design systems.
+                The page is ready. The posts aren&apos;t. Check back later — or
+                email me if you want to talk shop before then.
               </p>
               <LinkButton href="/#contact" className="mt-8">
-                Get in touch
+                Say hello
               </LinkButton>
             </div>
           ) : (

@@ -15,11 +15,11 @@ export function ContactSection() {
               Contact
             </p>
             <h2 className="mt-3 max-w-2xl font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-              Let&apos;s talk about your next frontend challenge.
+              Got a frontend problem worth solving? Say hi.
             </h2>
             <p className="mt-4 max-w-xl text-lg text-muted-foreground">
-              I&apos;m open to Senior / Staff Frontend Engineer and UI Architect
-              roles — remote globally or relocation for the right opportunity.
+              I&apos;m looking for Senior / Staff Frontend or UI Architect roles —
+              remote, or relocating if the work is right.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-4">

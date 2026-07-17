@@ -10,7 +10,7 @@ export function RecognitionSection() {
             Recognition
           </p>
           <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            Awards, milestones, and side projects.
+            A few milestones along the way.
           </h2>
         </Reveal>
 

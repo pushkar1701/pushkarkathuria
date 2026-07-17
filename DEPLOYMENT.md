@@ -4,13 +4,7 @@ The site is built and ready to deploy. Vercel CLI requires authentication on you
 
 ## Option A: Vercel Dashboard (recommended)
 
-1. Create a GitHub repo and push this project:
-   ```bash
-   cd /Users/pushkarkathuria/Projects/Personal/pushkarkathuria
-   git remote add origin git@github.com:pushkar1701/pushkarkathuria.com.git
-   git add -A && git commit -m "Initial portfolio site"
-   git push -u origin main
-   ```
+1. Push this repo to GitHub (already done).
 
 2. Go to [vercel.com/new](https://vercel.com/new) → Import the repo.
 
@@ -19,6 +13,10 @@ The site is built and ready to deploy. Vercel CLI requires authentication on you
 4. In Vercel → Project → Settings → Domains, add:
    - `pushkarkathuria.com`
    - `www.pushkarkathuria.com`
+
+   **Important:** Pick one primary domain in Vercel (either apex or www). Do not add
+   conflicting redirects in `vercel.json` — Vercel handles www ↔ apex at the platform
+   level. A redirect loop between apex and www will break CSS/JS loading.
 
 5. At your domain registrar, set DNS:
    | Type | Name | Value |
@@ -54,7 +52,7 @@ Then configure DNS as in step 5 above.
 ## Post-deploy checklist
 
 - [ ] SSL certificate active (green padlock)
-- [ ] www redirects to apex (configured in `vercel.json`)
+- [ ] No redirect loop between apex and www (CSS/JS must return 200, not 308 chains)
 - [ ] Resume PDF downloads correctly
 - [ ] Open Graph preview looks correct (share link on LinkedIn)
 - [ ] Google Search Console property verified

@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Pushkar Kathuria",
-  url: "https://pushkarkathuria.com",
+  url: "https://www.pushkarkathuria.com",
   email: "pushkar1701@gmail.com",
   location: "Gurugram / Delhi NCR, India",
   linkedin: "https://www.linkedin.com/in/pushkar-kathuria-1701/",

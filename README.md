@@ -1,36 +1,62 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# pushkarkathuria.com
 
-## Getting Started
+Personal portfolio site for Pushkar Kathuria — Frontend Technical Lead & UI Architect.
 
-First, run the development server:
+Built with Next.js 16, TypeScript, Tailwind CSS v4, shadcn/ui, and Framer Motion.
+
+## Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Build
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm start
+```
 
-## Learn More
+## Routes
 
-To learn more about Next.js, take a look at the following resources:
+| Route | Description |
+|-------|-------------|
+| `/` | Portfolio home page |
+| `/blog` | Blog shell (ready for future MDX posts) |
+| `/resume` | Resume PDF download |
+| `/sitemap.xml` | SEO sitemap |
+| `/robots.txt` | Crawler rules |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Content
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Edit [`content/site.ts`](content/site.ts) to update copy, projects, experience, and skills.
 
-## Deploy on Vercel
+Future blog posts: add MDX files to `content/blog/` and extend `lib/blog.ts`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Deploy to Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Push this repo to GitHub:
+   ```bash
+   gh repo create pushkarkathuria.com --public --source=. --remote=origin --push
+   ```
+
+2. Import the repo at [vercel.com/new](https://vercel.com/new).
+
+3. Add custom domain `pushkarkathuria.com` in Vercel → Project → Settings → Domains.
+
+4. At your domain registrar, set DNS per Vercel:
+   - `A` record: `@` → `76.76.21.21`
+   - `CNAME` record: `www` → `cname.vercel-dns.com`
+
+5. After DNS propagates, verify SSL and test all routes.
+
+6. Submit `https://pushkarkathuria.com/sitemap.xml` in [Google Search Console](https://search.google.com/search-console).
+
+## SEO
+
+- JSON-LD Person + ProfilePage schema
+- Open Graph image at `/opengraph-image`
+- Canonical URLs and meta keywords for frontend engineering roles

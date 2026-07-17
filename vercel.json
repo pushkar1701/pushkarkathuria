@@ -1,0 +1,11 @@
+{
+  "framework": "nextjs",
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.pushkarkathuria.com" }],
+      "destination": "https://pushkarkathuria.com/:path*",
+      "permanent": true
+    }
+  ]
+}

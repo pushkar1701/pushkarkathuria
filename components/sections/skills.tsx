@@ -4,9 +4,10 @@ import { Reveal } from "@/components/motion/reveal";
 
 const categories = [
   { key: "frontend" as const, label: "Frontend & Architecture" },
-  { key: "visualization" as const, label: "Data Visualization" },
-  { key: "leadership" as const, label: "Leadership" },
-  { key: "tools" as const, label: "Tools & Delivery" },
+  { key: "visualization" as const, label: "Styling & Visualization" },
+  { key: "platforms" as const, label: "Earlier Platform Experience" },
+  { key: "leadership" as const, label: "Leadership & Delivery" },
+  { key: "tools" as const, label: "Tools, APIs & Quality" },
 ];
 
 export function SkillsSection() {
@@ -22,7 +23,7 @@ export function SkillsSection() {
           </h2>
         </Reveal>
 
-        <div className="mt-12 grid gap-8 sm:grid-cols-2">
+        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((cat, i) => (
             <Reveal key={cat.key} delay={i * 0.05}>
               <div className="rounded-2xl border border-border/80 bg-card/40 p-6">

@@ -25,7 +25,7 @@ export function ExperienceSection() {
             Experience
           </p>
           <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            12+ years across SaaS, enterprise, and media.
+            Nearly 14 years across SaaS, enterprise, and media.
           </h2>
         </Reveal>
 

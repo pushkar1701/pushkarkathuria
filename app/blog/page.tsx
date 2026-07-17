@@ -28,8 +28,8 @@ export default function BlogPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen pt-24 pb-20">
-        <div className="mx-auto max-w-3xl px-6">
+      <main className="min-h-screen pt-24 pb-16 sm:pb-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <LinkButton
             href="/"
             variant="ghost"
@@ -43,16 +43,16 @@ export default function BlogPage() {
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">
             Blog
           </p>
-          <h1 className="mt-3 font-heading text-4xl font-bold tracking-tight sm:text-5xl">
+          <h1 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
             Things I want to write down
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">
+          <p className="mt-4 text-base text-muted-foreground sm:text-lg">
             Short notes on React, design systems, accessibility, and how UI work
             actually gets done — when I get around to publishing them.
           </p>
 
           {posts.length === 0 ? (
-            <div className="mt-16 flex flex-col items-center rounded-3xl border border-dashed border-border/80 bg-card/30 px-8 py-16 text-center">
+            <div className="mt-12 flex flex-col items-center rounded-3xl border border-dashed border-border/80 bg-card/30 px-6 py-12 text-center sm:mt-16 sm:px-8 sm:py-16">
               <PenLine className="size-10 text-brand" />
               <h2 className="mt-4 font-heading text-xl font-semibold">
                 Nothing here yet
@@ -71,7 +71,7 @@ export default function BlogPage() {
                 <li key={post.slug}>
                   <Link
                     href={`/blog/${post.slug}`}
-                    className="block rounded-2xl border border-border/80 p-6 transition-colors hover:border-brand/40"
+                    className="block rounded-2xl border border-border/80 p-5 transition-colors hover:border-brand/40 sm:p-6"
                   >
                     <time className="text-sm text-muted-foreground">
                       {post.date}

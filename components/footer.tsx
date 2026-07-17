@@ -7,15 +7,15 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border/60 bg-card/30">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-12">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 sm:px-6 sm:py-12">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+          <div className="min-w-0">
             <p className="font-heading text-xl font-bold">{siteConfig.name}</p>
             <p className="mt-1 text-sm text-muted-foreground">
               Frontend Technical Lead & UI Architect
             </p>
           </div>
-          <div className="flex flex-wrap gap-4 text-sm">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm">
             <a
               href={siteConfig.linkedin}
               target="_blank"

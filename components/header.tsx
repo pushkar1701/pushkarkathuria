@@ -35,7 +35,7 @@ export function Header() {
           : "bg-transparent",
       )}
     >
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
           className="font-heading text-lg font-bold tracking-tight transition-opacity hover:opacity-80"

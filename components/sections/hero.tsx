@@ -12,17 +12,20 @@ export function HeroSection() {
   const featured = projects.filter((p) => p.featured).slice(0, 3);
 
   return (
-    <section className="relative min-h-screen overflow-hidden pt-24 pb-20">
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 -right-32 size-[480px] rounded-full bg-brand/20 blur-[120px]" />
-        <div className="absolute bottom-0 -left-24 size-[360px] rounded-full bg-brand-secondary/15 blur-[100px]" />
+    <section className="relative min-h-[100svh] overflow-hidden pt-24 pb-16 sm:pb-20">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-32 -right-32 size-[min(480px,80vw)] rounded-full bg-brand/20 blur-[120px]" />
+        <div className="absolute bottom-0 -left-24 size-[min(360px,70vw)] rounded-full bg-brand-secondary/15 blur-[100px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_0)] [background-size:32px_32px]" />
       </div>
 
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-        <div>
+      <div className="relative mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+        <div className="min-w-0">
           <Reveal>
-            <Badge variant="outline" className="mb-6 border-brand/40 text-brand">
+            <Badge
+              variant="outline"
+              className="mb-6 h-auto max-w-full shrink border-brand/40 px-3 py-1.5 text-left leading-snug whitespace-normal text-brand"
+            >
               {hero.availability}
             </Badge>
           </Reveal>
@@ -34,7 +37,7 @@ export function HeroSection() {
           </Reveal>
 
           <Reveal delay={0.15}>
-            <h1 className="font-heading text-5xl font-bold leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
+            <h1 className="font-heading text-4xl font-bold leading-[0.95] tracking-tight sm:text-6xl lg:text-7xl">
               Pushkar
               <br />
               <span className="bg-gradient-to-r from-brand via-brand-secondary to-brand bg-clip-text text-transparent">
@@ -44,19 +47,19 @@ export function HeroSection() {
           </Reveal>
 
           <Reveal delay={0.2}>
-            <p className="mt-6 max-w-xl text-2xl font-medium text-foreground/90 sm:text-3xl">
+            <p className="mt-6 max-w-xl text-xl font-medium text-foreground/90 sm:text-3xl">
               {hero.headline}
             </p>
           </Reveal>
 
           <Reveal delay={0.25}>
-            <p className="mt-4 max-w-xl text-lg text-muted-foreground">
+            <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
               {hero.subheadline}
             </p>
           </Reveal>
 
           <Reveal delay={0.3}>
-            <div className="mt-10 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-wrap gap-3 sm:mt-10 sm:gap-4">
               <LinkButton href={`mailto:${siteConfig.email}`} size="lg">
                 <Mail data-icon="inline-start" />
                 Email me

@@ -12,8 +12,8 @@ const categories = [
 
 export function SkillsSection() {
   return (
-    <section id="skills" className="py-24">
-      <div className="mx-auto max-w-6xl px-6">
+    <section id="skills" className="py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">
             Skills
@@ -23,14 +23,18 @@ export function SkillsSection() {
           </h2>
         </Reveal>
 
-        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 sm:mt-12 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((cat, i) => (
-            <Reveal key={cat.key} delay={i * 0.05}>
-              <div className="rounded-2xl border border-border/80 bg-card/40 p-6">
+            <Reveal key={cat.key} delay={i * 0.05} className="min-w-0">
+              <div className="h-full rounded-2xl border border-border/80 bg-card/40 p-5 sm:p-6">
                 <h3 className="font-heading font-semibold">{cat.label}</h3>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {skills[cat.key].map((skill) => (
-                    <Badge key={skill} variant="outline">
+                    <Badge
+                      key={skill}
+                      variant="outline"
+                      className="h-auto max-w-full whitespace-normal"
+                    >
                       {skill}
                     </Badge>
                   ))}

@@ -3,8 +3,8 @@ import { Reveal } from "@/components/motion/reveal";
 
 export function RecognitionSection() {
   return (
-    <section className="py-24">
-      <div className="mx-auto max-w-6xl px-6">
+    <section className="py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">
             Recognition
@@ -14,22 +14,22 @@ export function RecognitionSection() {
           </h2>
         </Reveal>
 
-        <div className="mt-12 grid gap-6 sm:grid-cols-2">
+        <div className="mt-10 grid gap-4 sm:mt-12 sm:gap-6 sm:grid-cols-2">
           {recognition.map((item, i) => (
-            <Reveal key={item.title} delay={i * 0.05}>
-              <div className="rounded-2xl border border-border/80 bg-card/40 p-6">
+            <Reveal key={item.title} delay={i * 0.05} className="min-w-0">
+              <div className="h-full rounded-2xl border border-border/80 bg-card/40 p-5 sm:p-6">
                 <h3 className="font-heading font-semibold">{item.title}</h3>
-                <p className="mt-2 text-muted-foreground">{item.detail}</p>
+                <p className="mt-2 text-sm text-muted-foreground sm:text-base">{item.detail}</p>
               </div>
             </Reveal>
           ))}
         </div>
 
         <Reveal delay={0.2}>
-          <div className="mt-8 rounded-2xl border border-dashed border-border/80 p-6">
+          <div className="mt-6 rounded-2xl border border-dashed border-border/80 p-5 sm:mt-8 sm:p-6">
             <h3 className="font-heading font-semibold">Education</h3>
             <p className="mt-2 text-foreground">{education.degree}</p>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground sm:text-base">
               {education.school} · {education.dates} · {education.location}
             </p>
           </div>

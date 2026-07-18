@@ -501,16 +501,20 @@ function RoadmapSvg({
   );
 }
 
+/** Scroll distance reserved for scrubbing through the career path (sticky stage). */
+const SCROLL_VH_PER_STOP = 58;
+
 export function ExperienceSection() {
   const count = timeline.length;
   const shouldReduceMotion = useReducedMotion();
   const quest = useQuestOptional();
-  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const clickLockY = useRef<number | null>(null);
 
-  // Default to the latest stop (Present) at the right end of the path
-  const [activeIndex, setActiveIndex] = useState(count - 1);
-  const [progress, setProgress] = useState(1);
+  // Oldest stop first — scroll theater travels left → right / start → Present
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
   const [expanded, setExpanded] = useState<string[]>(
     experience.filter((e) => e.featured).map((e) => e.id),
   );
@@ -518,9 +522,10 @@ export function ExperienceSection() {
   const desktopPoints = usePathPoints(DESKTOP_PATH, count);
   const mobilePoints = usePathPoints(MOBILE_PATH, count);
 
+  // Progress maps to the tall track while the stage stays sticky in view.
   const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start 0.7", "end 0.35"],
+    target: trackRef,
+    offset: ["start start", "end end"],
   });
 
   const smoothProgress = useSpring(scrollYProgress, {
@@ -532,25 +537,53 @@ export function ExperienceSection() {
   useMotionValueEvent(smoothProgress, "change", (v) => {
     if (
       clickLockY.current != null &&
-      Math.abs(window.scrollY - clickLockY.current) < 120
+      Math.abs(window.scrollY - clickLockY.current) < 80
     ) {
       return;
     }
-    clickLockY.current = null;
+    if (
+      clickLockY.current != null &&
+      Math.abs(window.scrollY - clickLockY.current) >= 80
+    ) {
+      clickLockY.current = null;
+    }
     const clamped = Math.min(1, Math.max(0, v));
     setProgress(clamped);
     setActiveIndex(Math.round(clamped * (count - 1)));
   });
 
+  const scrollTrackToProgress = useCallback(
+    (nextProgress: number) => {
+      const track = trackRef.current;
+      if (!track) return;
+
+      // Matches useScroll offset ["start start", "end end"]
+      const trackTop = track.getBoundingClientRect().top + window.scrollY;
+      const scrollRange = Math.max(1, track.offsetHeight - window.innerHeight);
+      const targetY = trackTop + nextProgress * scrollRange;
+      clickLockY.current = targetY;
+      window.scrollTo({
+        top: targetY,
+        behavior: shouldReduceMotion ? "auto" : "smooth",
+      });
+    },
+    [shouldReduceMotion],
+  );
+
   const selectStop = useCallback(
     (index: number) => {
       const clampedIndex = Math.min(count - 1, Math.max(0, index));
       const nextProgress = clampedIndex / Math.max(1, count - 1);
-      clickLockY.current = window.scrollY;
       setActiveIndex(clampedIndex);
       setProgress(nextProgress);
+
+      if (shouldReduceMotion) {
+        clickLockY.current = window.scrollY;
+        return;
+      }
+      scrollTrackToProgress(nextProgress);
     },
-    [count],
+    [count, shouldReduceMotion, scrollTrackToProgress],
   );
 
   const job = timeline[activeIndex];
@@ -579,8 +612,12 @@ export function ExperienceSection() {
     });
   };
 
+  const trackHeight = shouldReduceMotion
+    ? "auto"
+    : `${Math.max(220, count * SCROLL_VH_PER_STOP)}vh`;
+
   return (
-    <section id="experience" ref={sectionRef} className="relative py-16 sm:py-24">
+    <section id="experience" className="relative py-16 sm:py-24">
       <QuestSectionTracker sectionId="experience" />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
@@ -595,8 +632,22 @@ export function ExperienceSection() {
             travel, or tap a pin to jump.
           </p>
         </Reveal>
+      </div>
 
-        <div className="mt-10 sm:mt-12">
+      {/* Tall track: page scroll here scrubs the sticky stage (dot + panel). */}
+      <div
+        ref={trackRef}
+        className="relative mt-10 sm:mt-12"
+        style={{ height: trackHeight }}
+      >
+        <div
+          ref={stageRef}
+          className={cn(
+            "mx-auto flex w-full max-w-6xl flex-col justify-center px-4 sm:px-6",
+            !shouldReduceMotion &&
+              "sticky top-0 min-h-[100svh] bg-background/95 py-20 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80",
+          )}
+        >
           <div
             className={cn(
               "relative overflow-visible rounded-3xl border border-border/70 bg-gradient-to-b from-card/80 via-background/40 to-card/50",
@@ -630,7 +681,7 @@ export function ExperienceSection() {
               </span>
             </div>
 
-            <div className="relative mx-auto h-[min(62vh,560px)] w-full px-2 pt-1 pb-4 sm:px-4 lg:hidden">
+            <div className="relative mx-auto h-[min(48vh,420px)] w-full px-2 pt-1 pb-3 sm:px-4 lg:hidden">
               <RoadmapSvg
                 idPrefix="road-mobile"
                 pathD={MOBILE_PATH}
@@ -645,7 +696,7 @@ export function ExperienceSection() {
               />
             </div>
 
-            <div className="relative mx-auto hidden h-[min(56vh,480px)] w-full px-2 pt-2 pb-8 sm:px-4 lg:block">
+            <div className="relative mx-auto hidden h-[min(42vh,380px)] w-full px-2 pt-2 pb-6 sm:px-4 lg:block">
               <RoadmapSvg
                 idPrefix="road-desktop"
                 pathD={DESKTOP_PATH}
@@ -660,7 +711,7 @@ export function ExperienceSection() {
             </div>
           </div>
 
-          <div className="mt-5 sm:mt-6">
+          <div className="mt-4 sm:mt-5">
             <DetailPanel
               job={job}
               index={activeIndex}
@@ -673,7 +724,7 @@ export function ExperienceSection() {
             />
           </div>
 
-          <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 sm:text-xs">
+          <p className="mt-3 pb-2 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 sm:text-xs">
             Scroll to travel · click a pin to jump
           </p>
         </div>

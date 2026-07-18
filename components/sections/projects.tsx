@@ -12,11 +12,11 @@ const spanClasses = {
 
 export function ProjectsSection() {
   return (
-    <section id="work" className="py-16 sm:py-24">
+    <section id="projects" className="py-16 sm:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">
-            Selected Work
+            Projects
           </p>
           <h2 className="mt-3 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
             A few things I&apos;m proud of shipping.

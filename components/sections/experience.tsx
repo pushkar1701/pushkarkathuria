@@ -123,13 +123,13 @@ function DetailPanel({
 
   return (
     <div
-      className="rounded-2xl border border-border/80 bg-card/60 p-4 backdrop-blur-sm sm:p-6"
+      className="flex h-full max-h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card/80 p-3 backdrop-blur-sm sm:p-4"
       aria-live="polite"
     >
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className="inline-flex size-8 items-center justify-center rounded-full text-sm font-bold text-background"
+            className="inline-flex size-7 items-center justify-center rounded-full text-xs font-bold text-background sm:size-8 sm:text-sm"
             style={{ backgroundColor: accent }}
           >
             {String(index + 1).padStart(2, "0")}
@@ -149,7 +149,7 @@ function DetailPanel({
             type="button"
             onClick={onPrev}
             disabled={index === 0}
-            className="inline-flex size-9 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-30"
+            className="inline-flex size-8 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-30 sm:size-9"
             aria-label="Previous stop"
           >
             <ChevronLeft className="size-4" />
@@ -158,7 +158,7 @@ function DetailPanel({
             type="button"
             onClick={onNext}
             disabled={index === total - 1}
-            className="inline-flex size-9 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-30"
+            className="inline-flex size-8 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-30 sm:size-9"
             aria-label="Next stop"
           >
             <ChevronRight className="size-4" />
@@ -167,7 +167,7 @@ function DetailPanel({
       </div>
 
       <div
-        className="mt-4 flex flex-wrap gap-1.5"
+        className="mt-3 flex shrink-0 flex-wrap gap-1.5"
         role="tablist"
         aria-label="Experience stops"
       >
@@ -188,53 +188,57 @@ function DetailPanel({
         ))}
       </div>
 
-      <h3 className="mt-5 font-heading text-xl font-semibold sm:text-2xl">
-        {job.role}
-      </h3>
-      <p className="mt-1 text-sm font-medium" style={{ color: accent }}>
-        {job.company}
-      </p>
-      <p className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2">
-        <span>
-          {isPresent(job.dates)
-            ? job.dates.replace(/Present/i, "Present · 2026")
-            : job.dates}
-        </span>
-        <span className="hidden text-muted-foreground/50 sm:inline">·</span>
-        <span className="inline-flex items-center gap-1">
-          <MapPin className="size-3.5 shrink-0" />
-          {job.location}
-        </span>
-      </p>
-      <p className="mt-2 text-sm text-muted-foreground/85">{job.context}</p>
+      <div className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+        <h3 className="font-heading text-lg font-semibold sm:text-xl">
+          {job.role}
+        </h3>
+        <p className="mt-0.5 text-sm font-medium" style={{ color: accent }}>
+          {job.company}
+        </p>
+        <p className="mt-1.5 flex flex-col gap-0.5 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2 sm:text-sm">
+          <span>
+            {isPresent(job.dates)
+              ? job.dates.replace(/Present/i, "Present · 2026")
+              : job.dates}
+          </span>
+          <span className="hidden text-muted-foreground/50 sm:inline">·</span>
+          <span className="inline-flex items-center gap-1">
+            <MapPin className="size-3.5 shrink-0" />
+            {job.location}
+          </span>
+        </p>
+        <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground/85 sm:text-sm">
+          {job.context}
+        </p>
 
-      <button
-        type="button"
-        onClick={onToggle}
-        className="mt-5 flex w-full items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/40 px-4 py-3 text-left text-sm font-medium transition-colors hover:border-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-        aria-expanded={isOpen}
-      >
-        <span>{isOpen ? "Hide what I did" : "What I did here"}</span>
-        <ChevronDown
-          className={cn(
-            "size-4 shrink-0 text-muted-foreground transition-transform",
-            isOpen && "rotate-180 text-brand",
-          )}
-        />
-      </button>
+        <button
+          type="button"
+          onClick={onToggle}
+          className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/40 px-3 py-2.5 text-left text-sm font-medium transition-colors hover:border-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          aria-expanded={isOpen}
+        >
+          <span>{isOpen ? "Hide what I did" : "What I did here"}</span>
+          <ChevronDown
+            className={cn(
+              "size-4 shrink-0 text-muted-foreground transition-transform",
+              isOpen && "rotate-180 text-brand",
+            )}
+          />
+        </button>
 
-      {isOpen && (
-        <ul className="mt-3 flex flex-col gap-2.5 px-1">
-          {job.highlights.map((highlight) => (
-            <li
-              key={highlight}
-              className="text-sm leading-relaxed text-muted-foreground before:mr-2 before:text-brand before:content-['→']"
-            >
-              {highlight}
-            </li>
-          ))}
-        </ul>
-      )}
+        {isOpen && (
+          <ul className="mt-2 flex flex-col gap-2 px-1 pb-1">
+            {job.highlights.map((highlight) => (
+              <li
+                key={highlight}
+                className="text-xs leading-relaxed text-muted-foreground before:mr-2 before:text-brand before:content-['→'] sm:text-sm"
+              >
+                {highlight}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
@@ -501,35 +505,32 @@ function RoadmapSvg({
   );
 }
 
-/** Scroll distance reserved for scrubbing through the career path (sticky stage). */
-const SCROLL_VH_PER_STOP = 58;
+/** Page-scroll distance reserved per stop while the stage is pinned. */
+const PAGE_VH_PER_STOP = 100;
 
 export function ExperienceSection() {
   const count = timeline.length;
   const shouldReduceMotion = useReducedMotion();
   const quest = useQuestOptional();
   const trackRef = useRef<HTMLDivElement>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
   const clickLockY = useRef<number | null>(null);
 
-  // Oldest stop first — scroll theater travels left → right / start → Present
+  // Oldest → newest; page scroll scrubs left → right while stage is sticky
   const [activeIndex, setActiveIndex] = useState(0);
   const [progress, setProgress] = useState(0);
-  const [expanded, setExpanded] = useState<string[]>(
-    experience.filter((e) => e.featured).map((e) => e.id),
-  );
+  // Start collapsed so the panel never eats the path on entry
+  const [expanded, setExpanded] = useState<string[]>([]);
 
   const desktopPoints = usePathPoints(DESKTOP_PATH, count);
   const mobilePoints = usePathPoints(MOBILE_PATH, count);
 
-  // Progress maps to the tall track while the stage stays sticky in view.
   const { scrollYProgress } = useScroll({
     target: trackRef,
     offset: ["start start", "end end"],
   });
 
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: shouldReduceMotion ? 1000 : 90,
+    stiffness: shouldReduceMotion ? 1000 : 100,
     damping: shouldReduceMotion ? 100 : 28,
     mass: 0.35,
   });
@@ -537,14 +538,11 @@ export function ExperienceSection() {
   useMotionValueEvent(smoothProgress, "change", (v) => {
     if (
       clickLockY.current != null &&
-      Math.abs(window.scrollY - clickLockY.current) < 80
+      Math.abs(window.scrollY - clickLockY.current) < 64
     ) {
       return;
     }
-    if (
-      clickLockY.current != null &&
-      Math.abs(window.scrollY - clickLockY.current) >= 80
-    ) {
+    if (clickLockY.current != null) {
       clickLockY.current = null;
     }
     const clamped = Math.min(1, Math.max(0, v));
@@ -552,12 +550,15 @@ export function ExperienceSection() {
     setActiveIndex(Math.round(clamped * (count - 1)));
   });
 
+  // Collapse highlights when the stop changes so the path stays visible
+  useEffect(() => {
+    setExpanded([]);
+  }, [activeIndex]);
+
   const scrollTrackToProgress = useCallback(
     (nextProgress: number) => {
       const track = trackRef.current;
       if (!track) return;
-
-      // Matches useScroll offset ["start start", "end end"]
       const trackTop = track.getBoundingClientRect().top + window.scrollY;
       const scrollRange = Math.max(1, track.offsetHeight - window.innerHeight);
       const targetY = trackTop + nextProgress * scrollRange;
@@ -576,11 +577,7 @@ export function ExperienceSection() {
       const nextProgress = clampedIndex / Math.max(1, count - 1);
       setActiveIndex(clampedIndex);
       setProgress(nextProgress);
-
-      if (shouldReduceMotion) {
-        clickLockY.current = window.scrollY;
-        return;
-      }
+      if (shouldReduceMotion) return;
       scrollTrackToProgress(nextProgress);
     },
     [count, shouldReduceMotion, scrollTrackToProgress],
@@ -606,20 +603,113 @@ export function ExperienceSection() {
       if (opening) {
         quest?.emit({ type: "experience_expand" });
       }
-      return opening
-        ? [...prev, job.id]
-        : prev.filter((id) => id !== job.id);
+      return opening ? [...prev, job.id] : prev.filter((id) => id !== job.id);
     });
   };
 
   const trackHeight = shouldReduceMotion
-    ? "auto"
-    : `${Math.max(220, count * SCROLL_VH_PER_STOP)}vh`;
+    ? undefined
+    : `${Math.max(200, count * PAGE_VH_PER_STOP)}vh`;
+
+  const stage = (
+    <div
+      className={cn(
+        "mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 sm:gap-4 sm:px-6",
+        !shouldReduceMotion &&
+          "h-svh overflow-hidden bg-background pt-[4.5rem] pb-3",
+      )}
+      onKeyDown={(e) => {
+        if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+          e.preventDefault();
+          selectStop(Math.min(count - 1, activeIndex + 1));
+        }
+        if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+          e.preventDefault();
+          selectStop(Math.max(0, activeIndex - 1));
+        }
+      }}
+    >
+      {/* Path owns the upper flex region and cannot be covered by the panel */}
+      <div
+        className={cn(
+          "relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-border/70",
+          "bg-gradient-to-b from-card/80 via-background/40 to-card/50",
+          "shadow-[0_0_80px_oklch(from_var(--brand)_l_c_h_/_0.08)]",
+          shouldReduceMotion ? "h-[min(52vh,420px)]" : "flex-1",
+        )}
+      >
+        <div
+          className="pointer-events-none absolute inset-0 opacity-40"
+          aria-hidden
+        >
+          <div className="absolute top-0 left-1/4 size-48 rounded-full bg-brand/20 blur-[80px]" />
+          <div className="absolute right-1/4 bottom-0 size-40 rounded-full bg-brand-secondary/15 blur-[70px]" />
+        </div>
+
+        <div className="relative flex shrink-0 items-center justify-between px-4 pt-3 sm:px-5 sm:pt-4">
+          <span className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand sm:text-xs">
+            2013
+          </span>
+          <span className="rounded-full border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-secondary sm:text-xs">
+            Present · 2026
+          </span>
+        </div>
+
+        <div className="relative min-h-0 flex-1 px-2 pb-3 sm:px-4 lg:hidden">
+          <RoadmapSvg
+            idPrefix="road-mobile"
+            pathD={MOBILE_PATH}
+            viewBox="0 0 160 800"
+            points={mobilePoints}
+            jobs={timeline}
+            activeIndex={activeIndex}
+            progress={progress}
+            reducedMotion={shouldReduceMotion}
+            onSelect={selectStop}
+            compactLabels
+          />
+        </div>
+
+        <div className="relative hidden min-h-0 flex-1 px-2 pb-4 sm:px-4 lg:block">
+          <RoadmapSvg
+            idPrefix="road-desktop"
+            pathD={DESKTOP_PATH}
+            viewBox="0 0 1200 480"
+            points={desktopPoints}
+            jobs={timeline}
+            activeIndex={activeIndex}
+            progress={progress}
+            reducedMotion={shouldReduceMotion}
+            onSelect={selectStop}
+          />
+        </div>
+      </div>
+
+      {/* Panel is height-capped; highlights scroll inside — never overlaps path */}
+      <div className="h-[min(34svh,300px)] shrink-0 sm:h-[min(32svh,280px)]">
+        <DetailPanel
+          job={job}
+          index={activeIndex}
+          total={count}
+          isOpen={isOpen}
+          onToggle={toggle}
+          onPrev={() => selectStop(Math.max(0, activeIndex - 1))}
+          onNext={() => selectStop(Math.min(count - 1, activeIndex + 1))}
+          onSelect={selectStop}
+        />
+      </div>
+
+      <p className="shrink-0 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 sm:text-xs">
+        Scroll to travel · click a pin to jump
+      </p>
+    </div>
+  );
 
   return (
-    <section id="experience" className="relative py-16 sm:py-24">
+    <section id="experience" className="relative">
       <QuestSectionTracker sectionId="experience" />
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+
+      <div className="mx-auto max-w-6xl px-4 pt-16 sm:px-6 sm:pt-24">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">
             Experience
@@ -628,106 +718,23 @@ export function ExperienceSection() {
             Places I&apos;ve done the work.
           </h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            A winding path from where I started to where I am now — scroll to
-            travel, or tap a pin to jump.
+            A winding path from where I started to where I am now — once this
+            stage pins, keep scrolling to travel, or tap a pin to jump.
           </p>
         </Reveal>
       </div>
 
-      {/* Tall track: page scroll here scrubs the sticky stage (dot + panel). */}
+      {/*
+        Tall page track + sticky full-viewport stage.
+        While pinned, page scroll only advances the traveler + panel.
+        Stage fills the viewport so the track never reads as empty black.
+      */}
       <div
         ref={trackRef}
-        className="relative mt-10 sm:mt-12"
-        style={{ height: trackHeight }}
+        className="relative mt-8 sm:mt-10"
+        style={trackHeight ? { height: trackHeight } : undefined}
       >
-        <div
-          ref={stageRef}
-          className={cn(
-            "mx-auto flex w-full max-w-6xl flex-col justify-center px-4 sm:px-6",
-            !shouldReduceMotion &&
-              "sticky top-0 min-h-[100svh] bg-background/95 py-20 backdrop-blur-sm supports-[backdrop-filter]:bg-background/80",
-          )}
-        >
-          <div
-            className={cn(
-              "relative overflow-visible rounded-3xl border border-border/70 bg-gradient-to-b from-card/80 via-background/40 to-card/50",
-              "shadow-[0_0_80px_oklch(from_var(--brand)_l_c_h_/_0.08)]",
-            )}
-            onKeyDown={(e) => {
-              if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-                e.preventDefault();
-                selectStop(Math.min(count - 1, activeIndex + 1));
-              }
-              if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-                e.preventDefault();
-                selectStop(Math.max(0, activeIndex - 1));
-              }
-            }}
-          >
-            <div
-              className="pointer-events-none absolute inset-0 opacity-40"
-              aria-hidden
-            >
-              <div className="absolute top-0 left-1/4 size-48 rounded-full bg-brand/20 blur-[80px]" />
-              <div className="absolute right-1/4 bottom-0 size-40 rounded-full bg-brand-secondary/15 blur-[70px]" />
-            </div>
-
-            <div className="relative flex items-center justify-between px-4 pt-4 sm:px-6">
-              <span className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand sm:text-xs">
-                2013
-              </span>
-              <span className="rounded-full border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-secondary sm:text-xs">
-                Present · 2026
-              </span>
-            </div>
-
-            <div className="relative mx-auto h-[min(48vh,420px)] w-full px-2 pt-1 pb-3 sm:px-4 lg:hidden">
-              <RoadmapSvg
-                idPrefix="road-mobile"
-                pathD={MOBILE_PATH}
-                viewBox="0 0 160 800"
-                points={mobilePoints}
-                jobs={timeline}
-                activeIndex={activeIndex}
-                progress={progress}
-                reducedMotion={shouldReduceMotion}
-                onSelect={selectStop}
-                compactLabels
-              />
-            </div>
-
-            <div className="relative mx-auto hidden h-[min(42vh,380px)] w-full px-2 pt-2 pb-6 sm:px-4 lg:block">
-              <RoadmapSvg
-                idPrefix="road-desktop"
-                pathD={DESKTOP_PATH}
-                viewBox="0 0 1200 480"
-                points={desktopPoints}
-                jobs={timeline}
-                activeIndex={activeIndex}
-                progress={progress}
-                reducedMotion={shouldReduceMotion}
-                onSelect={selectStop}
-              />
-            </div>
-          </div>
-
-          <div className="mt-4 sm:mt-5">
-            <DetailPanel
-              job={job}
-              index={activeIndex}
-              total={count}
-              isOpen={isOpen}
-              onToggle={toggle}
-              onPrev={() => selectStop(Math.max(0, activeIndex - 1))}
-              onNext={() => selectStop(Math.min(count - 1, activeIndex + 1))}
-              onSelect={selectStop}
-            />
-          </div>
-
-          <p className="mt-3 pb-2 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 sm:text-xs">
-            Scroll to travel · click a pin to jump
-          </p>
-        </div>
+        <div className={cn(!shouldReduceMotion && "sticky top-0")}>{stage}</div>
       </div>
     </section>
   );

@@ -2,10 +2,12 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDownRight, Download, Mail } from "lucide-react";
+import { questCopy } from "@/content/quest";
 import { hero, siteConfig } from "@/content/site";
 import { LinkButton } from "@/components/link-button";
 import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/motion/reveal";
+import { useQuestOptional } from "@/components/quest/quest-provider";
 
 const stats = [
   { value: "13+", label: "years building web UIs", accent: "var(--brand)" },
@@ -15,6 +17,8 @@ const stats = [
 
 export function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
+  const quest = useQuestOptional();
+  const showNudge = quest?.hydrated && !quest.state.skipped;
 
   return (
     <section className="relative flex min-h-[100svh] items-center overflow-hidden pt-24 pb-16 sm:pb-20">
@@ -82,6 +86,11 @@ export function HeroSection() {
                 Resume
               </LinkButton>
             </div>
+            {showNudge && (
+              <p className="mt-4 max-w-xl text-xs text-muted-foreground sm:text-sm">
+                {questCopy.heroNudge}
+              </p>
+            )}
           </Reveal>
 
           {/* Compact stats strip on mobile/tablet, where the side card is hidden */}
@@ -160,6 +169,7 @@ export function HeroSection() {
 
               <a
                 href="#experience"
+                onClick={() => quest?.emit({ type: "hero_path" })}
                 className="group inline-flex items-center gap-1.5 text-sm font-medium text-foreground/80 transition-colors hover:text-brand"
               >
                 Trace the whole path

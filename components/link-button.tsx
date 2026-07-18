@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { VariantProps } from "class-variance-authority";
-import type { ReactNode } from "react";
+import type { MouseEventHandler, ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ type LinkButtonProps = VariantProps<typeof buttonVariants> & {
   className?: string;
   children: ReactNode;
   external?: boolean;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
 };
 
 export function LinkButton({
@@ -18,6 +19,7 @@ export function LinkButton({
   className,
   children,
   external,
+  onClick,
 }: LinkButtonProps) {
   const classes = cn(buttonVariants({ variant, size }), className);
   const isExternal =
@@ -31,6 +33,7 @@ export function LinkButton({
       <a
         href={href}
         className={classes}
+        onClick={onClick}
         target={href.startsWith("http") ? "_blank" : undefined}
         rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
       >
@@ -40,7 +43,7 @@ export function LinkButton({
   }
 
   return (
-    <Link href={href} className={classes}>
+    <Link href={href} className={classes} onClick={onClick}>
       {children}
     </Link>
   );

@@ -2,6 +2,7 @@
 
 import {
   useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -22,6 +23,8 @@ import {
 } from "framer-motion";
 import { experience } from "@/content/site";
 import { Reveal } from "@/components/motion/reveal";
+import { useQuestOptional } from "@/components/quest/quest-provider";
+import { QuestSectionTracker } from "@/components/quest/use-quest-section";
 import { cn } from "@/lib/utils";
 
 /** Chronological: oldest → newest (left → right on the path) */
@@ -501,6 +504,7 @@ function RoadmapSvg({
 export function ExperienceSection() {
   const count = timeline.length;
   const shouldReduceMotion = useReducedMotion();
+  const quest = useQuestOptional();
   const sectionRef = useRef<HTMLElement>(null);
   const clickLockY = useRef<number | null>(null);
 
@@ -552,16 +556,32 @@ export function ExperienceSection() {
   const job = timeline[activeIndex];
   const isOpen = expanded.includes(job.id);
 
+  const emitQuest = quest?.emit;
+  const experienceEntered = Boolean(
+    quest?.state.visitedSections.includes("experience"),
+  );
+  useEffect(() => {
+    if (!experienceEntered || !emitQuest) return;
+    const stop = timeline[activeIndex];
+    if (!stop) return;
+    emitQuest({ type: "experience_pin", jobId: stop.id });
+  }, [activeIndex, emitQuest, experienceEntered]);
+
   const toggle = () => {
-    setExpanded((prev) =>
-      prev.includes(job.id)
-        ? prev.filter((id) => id !== job.id)
-        : [...prev, job.id],
-    );
+    setExpanded((prev) => {
+      const opening = !prev.includes(job.id);
+      if (opening) {
+        quest?.emit({ type: "experience_expand" });
+      }
+      return opening
+        ? [...prev, job.id]
+        : prev.filter((id) => id !== job.id);
+    });
   };
 
   return (
     <section id="experience" ref={sectionRef} className="relative py-16 sm:py-24">
+      <QuestSectionTracker sectionId="experience" />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">

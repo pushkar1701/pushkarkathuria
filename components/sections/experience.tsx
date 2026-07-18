@@ -24,14 +24,17 @@ import { experience } from "@/content/site";
 import { Reveal } from "@/components/motion/reveal";
 import { cn } from "@/lib/utils";
 
+/** Chronological: oldest → newest (left → right on the path) */
+const timeline = [...experience].reverse();
+
 const PIN_ACCENTS = [
-  "var(--brand)",
-  "var(--brand-secondary)",
   "oklch(0.8 0.14 85)",
+  "var(--brand-secondary)",
+  "var(--brand)",
   "oklch(0.76 0.13 155)",
-  "var(--brand)",
-  "var(--brand-secondary)",
   "oklch(0.8 0.14 85)",
+  "var(--brand-secondary)",
+  "var(--brand)",
 ] as const;
 
 /** Horizontal S-curve for the desktop roadmap stage */
@@ -46,6 +49,24 @@ type Job = (typeof experience)[number];
 
 function parseYear(dates: string) {
   return dates.match(/\d{4}/)?.[0] ?? "";
+}
+
+function isPresent(dates: string) {
+  return dates.toLowerCase().includes("present");
+}
+
+function shortCompany(name: string) {
+  if (name.includes("Cognizant")) return "Cognizant";
+  if (name.includes("DMI")) return "DMI";
+  if (name.includes("Sapient")) return "Sapient";
+  if (name.includes("Basware")) return "Basware";
+  if (name.includes("Deloitte")) return "Deloitte";
+  return name;
+}
+
+function pinYearLabel(job: Job) {
+  if (isPresent(job.dates)) return "Present";
+  return parseYear(job.dates);
 }
 
 function usePathPoints(pathD: string, count: number) {
@@ -93,6 +114,9 @@ function DetailPanel({
   onSelect: (i: number) => void;
 }) {
   const accent = PIN_ACCENTS[index % PIN_ACCENTS.length];
+  const yearLabel = isPresent(job.dates)
+    ? "Present · 2026"
+    : parseYear(job.dates);
 
   return (
     <div
@@ -113,7 +137,7 @@ function DetailPanel({
             </span>
           )}
           <span className="font-mono text-xs text-muted-foreground">
-            Stop {parseYear(job.dates)}
+            {yearLabel}
           </span>
         </div>
 
@@ -139,8 +163,12 @@ function DetailPanel({
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-1.5" role="tablist" aria-label="Experience stops">
-        {experience.map((item, i) => (
+      <div
+        className="mt-4 flex flex-wrap gap-1.5"
+        role="tablist"
+        aria-label="Experience stops"
+      >
+        {timeline.map((item, i) => (
           <button
             key={item.id}
             type="button"
@@ -164,7 +192,11 @@ function DetailPanel({
         {job.company}
       </p>
       <p className="mt-2 flex flex-col gap-1 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2">
-        <span>{job.dates}</span>
+        <span>
+          {isPresent(job.dates)
+            ? job.dates.replace(/Present/i, "Present · 2026")
+            : job.dates}
+        </span>
         <span className="hidden text-muted-foreground/50 sm:inline">·</span>
         <span className="inline-flex items-center gap-1">
           <MapPin className="size-3.5 shrink-0" />
@@ -208,22 +240,26 @@ function RoadmapSvg({
   pathD,
   viewBox,
   points,
+  jobs,
   activeIndex,
   progress,
   reducedMotion,
   onSelect,
   className,
   idPrefix,
+  compactLabels,
 }: {
   pathD: string;
   viewBox: string;
   points: { x: number; y: number }[];
+  jobs: Job[];
   activeIndex: number;
   progress: number;
   reducedMotion: boolean | null;
   onSelect: (index: number) => void;
   className?: string;
   idPrefix: string;
+  compactLabels?: boolean;
 }) {
   const pathRef = useRef<SVGPathElement>(null);
   const [pathLength, setPathLength] = useState(1);
@@ -251,7 +287,9 @@ function RoadmapSvg({
     };
   }, [points, progress]);
 
-  const drawn = reducedMotion ? pathLength : pathLength * Math.max(0.08, progress);
+  const drawn = reducedMotion
+    ? pathLength
+    : pathLength * Math.max(0.08, progress);
 
   return (
     <svg
@@ -268,7 +306,11 @@ function RoadmapSvg({
         </linearGradient>
         <linearGradient id={glowId} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.55" />
-          <stop offset="50%" stopColor="var(--brand-secondary)" stopOpacity="0.45" />
+          <stop
+            offset="50%"
+            stopColor="var(--brand-secondary)"
+            stopOpacity="0.45"
+          />
           <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.55" />
         </linearGradient>
         <filter id={pinGlowId} x="-50%" y="-50%" width="200%" height="200%">
@@ -281,8 +323,20 @@ function RoadmapSvg({
       </defs>
 
       <circle cx="220" cy="300" r="70" fill="var(--brand)" opacity="0.05" />
-      <circle cx="700" cy="100" r="90" fill="var(--brand-secondary)" opacity="0.06" />
-      <circle cx="980" cy="280" r="60" fill="oklch(0.8 0.14 85)" opacity="0.05" />
+      <circle
+        cx="700"
+        cy="100"
+        r="90"
+        fill="var(--brand-secondary)"
+        opacity="0.06"
+      />
+      <circle
+        cx="980"
+        cy="280"
+        r="60"
+        fill="oklch(0.8 0.14 85)"
+        opacity="0.05"
+      />
 
       <path
         d={pathD}
@@ -321,20 +375,24 @@ function RoadmapSvg({
         strokeWidth="2"
         strokeLinecap="round"
         strokeDasharray="10 14"
-        strokeDashoffset={reducedMotion ? 0 : pathLength * (1 - progress) * 0.15}
+        strokeDashoffset={
+          reducedMotion ? 0 : pathLength * (1 - progress) * 0.15
+        }
       />
 
       {points.map((pt, i) => {
+        const job = jobs[i];
         const accent = PIN_ACCENTS[i % PIN_ACCENTS.length];
         const active = i === activeIndex;
-        const year = parseYear(experience[i].dates);
+        const company = shortCompany(job.company);
+        const year = pinYearLabel(job);
+        const present = isPresent(job.dates);
+
         return (
-          <g key={experience[i].id} transform={`translate(${pt.x} ${pt.y})`}>
+          <g key={job.id} transform={`translate(${pt.x} ${pt.y})`}>
             <motion.g
               animate={
-                reducedMotion
-                  ? undefined
-                  : { y: active ? [0, -4, 0] : 0 }
+                reducedMotion ? undefined : { y: active ? [0, -4, 0] : 0 }
               }
               transition={
                 active
@@ -364,25 +422,52 @@ function RoadmapSvg({
                 {String(i + 1)}
               </text>
               <text
-                y="34"
+                y={compactLabels ? 32 : 34}
                 textAnchor="middle"
-                className="fill-muted-foreground"
                 style={{
-                  fontSize: 10,
+                  fontSize: compactLabels ? 8 : 10,
                   fontFamily: "var(--font-geist-mono), monospace",
-                  opacity: active ? 1 : 0.55,
+                  fill: "oklch(0.72 0.02 280)",
+                  opacity: active ? 1 : 0.7,
                 }}
               >
                 {year}
               </text>
+              {present && !compactLabels && (
+                <text
+                  y="48"
+                  textAnchor="middle"
+                  style={{
+                    fontSize: 9,
+                    fontFamily: "var(--font-geist-mono), monospace",
+                    fill: "var(--brand-secondary)",
+                    opacity: active ? 1 : 0.75,
+                  }}
+                >
+                  2026
+                </text>
+              )}
+              <text
+                y={present && !compactLabels ? 62 : compactLabels ? 44 : 50}
+                textAnchor="middle"
+                style={{
+                  fontSize: compactLabels ? 8 : 10,
+                  fontFamily: "var(--font-syne), sans-serif",
+                  fontWeight: 600,
+                  fill: active ? accent : "oklch(0.78 0.02 280)",
+                  opacity: active ? 1 : 0.85,
+                }}
+              >
+                {company}
+              </text>
             </motion.g>
             <circle
-              r="28"
+              r="36"
               fill="transparent"
               className="cursor-pointer"
               role="button"
               tabIndex={0}
-              aria-label={`${experience[i].role} at ${experience[i].company}, ${experience[i].dates}`}
+              aria-label={`${job.role} at ${job.company}, ${job.dates}`}
               onClick={() => onSelect(i)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -414,24 +499,24 @@ function RoadmapSvg({
 }
 
 export function ExperienceSection() {
-  const count = experience.length;
+  const count = timeline.length;
   const shouldReduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const clickLockY = useRef<number | null>(null);
 
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [progress, setProgress] = useState(0);
+  // Default to the latest stop (Present) at the right end of the path
+  const [activeIndex, setActiveIndex] = useState(count - 1);
+  const [progress, setProgress] = useState(1);
   const [expanded, setExpanded] = useState<string[]>(
     experience.filter((e) => e.featured).map((e) => e.id),
   );
-  const clickingRef = useRef(false);
 
   const desktopPoints = usePathPoints(DESKTOP_PATH, count);
   const mobilePoints = usePathPoints(MOBILE_PATH, count);
 
   const { scrollYProgress } = useScroll({
-    target: trackRef,
-    offset: ["start start", "end end"],
+    target: sectionRef,
+    offset: ["start 0.7", "end 0.35"],
   });
 
   const smoothProgress = useSpring(scrollYProgress, {
@@ -441,46 +526,30 @@ export function ExperienceSection() {
   });
 
   useMotionValueEvent(smoothProgress, "change", (v) => {
-    if (clickingRef.current) return;
+    if (
+      clickLockY.current != null &&
+      Math.abs(window.scrollY - clickLockY.current) < 120
+    ) {
+      return;
+    }
+    clickLockY.current = null;
     const clamped = Math.min(1, Math.max(0, v));
     setProgress(clamped);
-    const idx = Math.round(clamped * (count - 1));
-    setActiveIndex(idx);
+    setActiveIndex(Math.round(clamped * (count - 1)));
   });
 
-  const scrollToIndex = useCallback(
+  const selectStop = useCallback(
     (index: number) => {
-      const track = trackRef.current;
-      if (!track) {
-        setActiveIndex(index);
-        setProgress(index / Math.max(1, count - 1));
-        return;
-      }
-
-      const max = track.offsetHeight - window.innerHeight;
-      const target =
-        track.offsetTop + (index / Math.max(1, count - 1)) * Math.max(0, max);
-
-      clickingRef.current = true;
-      setActiveIndex(index);
-      setProgress(index / Math.max(1, count - 1));
-
-      window.scrollTo({
-        top: target,
-        behavior: shouldReduceMotion ? "auto" : "smooth",
-      });
-
-      window.setTimeout(
-        () => {
-          clickingRef.current = false;
-        },
-        shouldReduceMotion ? 50 : 700,
-      );
+      const clampedIndex = Math.min(count - 1, Math.max(0, index));
+      const nextProgress = clampedIndex / Math.max(1, count - 1);
+      clickLockY.current = window.scrollY;
+      setActiveIndex(clampedIndex);
+      setProgress(nextProgress);
     },
-    [count, shouldReduceMotion],
+    [count],
   );
 
-  const job = experience[activeIndex];
+  const job = timeline[activeIndex];
   const isOpen = expanded.includes(job.id);
 
   const toggle = () => {
@@ -492,8 +561,8 @@ export function ExperienceSection() {
   };
 
   return (
-    <section id="experience" ref={sectionRef} className="relative">
-      <div className="mx-auto max-w-6xl px-4 pt-16 sm:px-6 sm:pt-24">
+    <section id="experience" ref={sectionRef} className="relative py-16 sm:py-24">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">
             Experience
@@ -502,99 +571,93 @@ export function ExperienceSection() {
             Places I&apos;ve done the work.
           </h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            A winding path from today back to where I started — scroll to travel,
-            or tap a pin to jump.
+            A winding path from where I started to where I am now — scroll to
+            travel, or tap a pin to jump.
           </p>
         </Reveal>
-      </div>
 
-      <div
-        ref={trackRef}
-        className="relative mt-8"
-        style={{ height: `${Math.max(220, count * 55)}vh` }}
-      >
-        <div className="sticky top-16 flex min-h-[calc(100svh-4rem)] flex-col justify-center py-6 lg:top-20">
-          <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
+        <div className="mt-10 sm:mt-12">
+          <div
+            className={cn(
+              "relative overflow-visible rounded-3xl border border-border/70 bg-gradient-to-b from-card/80 via-background/40 to-card/50",
+              "shadow-[0_0_80px_oklch(from_var(--brand)_l_c_h_/_0.08)]",
+            )}
+            onKeyDown={(e) => {
+              if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+                e.preventDefault();
+                selectStop(Math.min(count - 1, activeIndex + 1));
+              }
+              if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+                e.preventDefault();
+                selectStop(Math.max(0, activeIndex - 1));
+              }
+            }}
+          >
             <div
-              className={cn(
-                "relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-b from-card/80 via-background/40 to-card/50",
-                "shadow-[0_0_80px_oklch(from_var(--brand)_l_c_h_/_0.08)]",
-              )}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-                  e.preventDefault();
-                  scrollToIndex(Math.min(count - 1, activeIndex + 1));
-                }
-                if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-                  e.preventDefault();
-                  scrollToIndex(Math.max(0, activeIndex - 1));
-                }
-              }}
+              className="pointer-events-none absolute inset-0 opacity-40"
+              aria-hidden
             >
-              <div className="pointer-events-none absolute inset-0 opacity-40" aria-hidden>
-                <div className="absolute top-0 left-1/4 size-48 rounded-full bg-brand/20 blur-[80px]" />
-                <div className="absolute right-1/4 bottom-0 size-40 rounded-full bg-brand-secondary/15 blur-[70px]" />
-              </div>
-
-              <div className="relative flex items-center justify-between px-4 pt-4 sm:px-6">
-                <span className="rounded-full border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-secondary sm:text-xs">
-                  Now
-                </span>
-                <span className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand sm:text-xs">
-                  2013
-                </span>
-              </div>
-
-              <div className="relative mx-auto h-[min(58vh,520px)] w-full px-2 pt-1 pb-2 sm:px-4 lg:hidden">
-                <RoadmapSvg
-                  idPrefix="road-mobile"
-                  pathD={MOBILE_PATH}
-                  viewBox="0 0 160 800"
-                  points={mobilePoints}
-                  activeIndex={activeIndex}
-                  progress={progress}
-                  reducedMotion={shouldReduceMotion}
-                  onSelect={scrollToIndex}
-                />
-              </div>
-
-              <div className="relative mx-auto hidden h-[min(52vh,420px)] w-full px-2 pt-1 pb-2 sm:px-4 lg:block">
-                <RoadmapSvg
-                  idPrefix="road-desktop"
-                  pathD={DESKTOP_PATH}
-                  viewBox="0 0 1200 420"
-                  points={desktopPoints}
-                  activeIndex={activeIndex}
-                  progress={progress}
-                  reducedMotion={shouldReduceMotion}
-                  onSelect={scrollToIndex}
-                />
-              </div>
+              <div className="absolute top-0 left-1/4 size-48 rounded-full bg-brand/20 blur-[80px]" />
+              <div className="absolute right-1/4 bottom-0 size-40 rounded-full bg-brand-secondary/15 blur-[70px]" />
             </div>
 
-            <div className="mt-5 sm:mt-6">
-              <DetailPanel
-                job={job}
-                index={activeIndex}
-                total={count}
-                isOpen={isOpen}
-                onToggle={toggle}
-                onPrev={() => scrollToIndex(Math.max(0, activeIndex - 1))}
-                onNext={() =>
-                  scrollToIndex(Math.min(count - 1, activeIndex + 1))
-                }
-                onSelect={scrollToIndex}
+            <div className="relative flex items-center justify-between px-4 pt-4 sm:px-6">
+              <span className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand sm:text-xs">
+                2013
+              </span>
+              <span className="rounded-full border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-secondary sm:text-xs">
+                Present · 2026
+              </span>
+            </div>
+
+            <div className="relative mx-auto h-[min(62vh,560px)] w-full px-2 pt-1 pb-4 sm:px-4 lg:hidden">
+              <RoadmapSvg
+                idPrefix="road-mobile"
+                pathD={MOBILE_PATH}
+                viewBox="0 0 160 800"
+                points={mobilePoints}
+                jobs={timeline}
+                activeIndex={activeIndex}
+                progress={progress}
+                reducedMotion={shouldReduceMotion}
+                onSelect={selectStop}
+                compactLabels
               />
             </div>
 
-            <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 sm:text-xs">
-              Scroll to travel · click a pin to jump
-            </p>
+            <div className="relative mx-auto hidden h-[min(56vh,480px)] w-full px-2 pt-2 pb-8 sm:px-4 lg:block">
+              <RoadmapSvg
+                idPrefix="road-desktop"
+                pathD={DESKTOP_PATH}
+                viewBox="0 0 1200 480"
+                points={desktopPoints}
+                jobs={timeline}
+                activeIndex={activeIndex}
+                progress={progress}
+                reducedMotion={shouldReduceMotion}
+                onSelect={selectStop}
+              />
+            </div>
           </div>
+
+          <div className="mt-5 sm:mt-6">
+            <DetailPanel
+              job={job}
+              index={activeIndex}
+              total={count}
+              isOpen={isOpen}
+              onToggle={toggle}
+              onPrev={() => selectStop(Math.max(0, activeIndex - 1))}
+              onNext={() => selectStop(Math.min(count - 1, activeIndex + 1))}
+              onSelect={selectStop}
+            />
+          </div>
+
+          <p className="mt-3 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 sm:text-xs">
+            Scroll to travel · click a pin to jump
+          </p>
         </div>
       </div>
-
-      <div className="h-8 sm:h-12" />
     </section>
   );
 }

@@ -2,24 +2,29 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDownRight, Download, Mail } from "lucide-react";
-import { hero, projects, siteConfig } from "@/content/site";
+import { hero, siteConfig } from "@/content/site";
 import { LinkButton } from "@/components/link-button";
 import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/motion/reveal";
 
+const stats = [
+  { value: "13+", label: "years building web UIs", accent: "var(--brand)" },
+  { value: "7", label: "companies, support to founding engineer", accent: "oklch(0.8 0.14 85)" },
+  { value: "5", label: "iOS apps shipped under my own label", accent: "var(--brand-secondary)" },
+] as const;
+
 export function HeroSection() {
   const shouldReduceMotion = useReducedMotion();
-  const featured = projects.filter((p) => p.featured).slice(0, 3);
 
   return (
-    <section className="relative min-h-[100svh] overflow-hidden pt-24 pb-16 sm:pb-20">
+    <section className="relative flex min-h-[100svh] items-center overflow-hidden pt-24 pb-16 sm:pb-20">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-32 -right-32 size-[min(480px,80vw)] rounded-full bg-brand/20 blur-[120px]" />
         <div className="absolute bottom-0 -left-24 size-[min(360px,70vw)] rounded-full bg-brand-secondary/15 blur-[100px]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.04)_1px,transparent_0)] [background-size:32px_32px]" />
       </div>
 
-      <div className="relative mx-auto grid max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+      <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-4 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
         <div className="min-w-0">
           <Reveal>
             <Badge
@@ -78,36 +83,90 @@ export function HeroSection() {
               </LinkButton>
             </div>
           </Reveal>
+
+          {/* Compact stats strip on mobile/tablet, where the side card is hidden */}
+          <Reveal delay={0.35} className="lg:hidden">
+            <dl className="mt-10 grid grid-cols-3 gap-4 border-t border-border/60 pt-6">
+              {stats.map((stat) => (
+                <div key={stat.label} className="min-w-0">
+                  <dt className="sr-only">{stat.label}</dt>
+                  <dd
+                    className="font-heading text-2xl font-bold"
+                    style={{ color: stat.accent }}
+                  >
+                    {stat.value}
+                  </dd>
+                  <dd className="mt-1 text-xs leading-snug text-muted-foreground">
+                    {stat.label}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </Reveal>
         </div>
 
+        {/* Personal signal card — about me, not my projects */}
         <div className="relative hidden lg:block">
-          {!shouldReduceMotion && (
+          <Reveal delay={0.25} direction="left">
             <motion.div
-              className="absolute -top-8 right-0 size-24 rounded-2xl border border-brand/30 bg-brand/10"
-              animate={{ y: [0, -12, 0], rotate: [0, 6, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            />
-          )}
-          <div className="flex flex-col gap-4">
-            {featured.map((project, i) => (
-              <Reveal key={project.slug} delay={0.2 + i * 0.1} direction="left">
-                <div
-                  className="group rounded-2xl border border-border/80 bg-card/60 p-5 backdrop-blur-sm transition-colors hover:border-brand/40"
-                  style={{ marginLeft: `${i * 24}px` }}
-                >
-                  <p className="text-xs uppercase tracking-wider text-brand">
-                    {project.company}
-                  </p>
-                  <p className="mt-1 font-heading text-lg font-semibold">
-                    {project.title}
-                  </p>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {project.metric}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+              animate={
+                shouldReduceMotion ? undefined : { y: [0, -8, 0] }
+              }
+              transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+              className="relative overflow-hidden rounded-3xl border border-border/70 bg-card/50 p-7 backdrop-blur-sm shadow-[0_0_60px_oklch(from_var(--brand)_l_c_h_/_0.07)]"
+            >
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 top-0 h-px"
+                style={{
+                  background:
+                    "linear-gradient(to right, transparent, var(--brand), var(--brand-secondary), transparent)",
+                }}
+              />
+
+              <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
+                <span className="relative flex size-2">
+                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                  <span className="relative inline-flex size-2 rounded-full bg-emerald-400" />
+                </span>
+                Currently
+              </p>
+              <p className="mt-3 font-heading text-xl font-semibold leading-snug">
+                Founding Engineer / UI Technical Lead
+              </p>
+              <p className="mt-1 text-sm font-medium text-brand">
+                Datalogz · Apr 2024 — Present
+              </p>
+
+              <div className="my-6 h-px bg-border/60" />
+
+              <dl className="space-y-5">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="flex items-baseline gap-4">
+                    <dd
+                      className="w-12 shrink-0 font-heading text-3xl font-bold"
+                      style={{ color: stat.accent }}
+                    >
+                      {stat.value}
+                    </dd>
+                    <dt className="text-sm leading-snug text-muted-foreground">
+                      {stat.label}
+                    </dt>
+                  </div>
+                ))}
+              </dl>
+
+              <div className="my-6 h-px bg-border/60" />
+
+              <a
+                href="#experience"
+                className="group inline-flex items-center gap-1.5 text-sm font-medium text-foreground/80 transition-colors hover:text-brand"
+              >
+                Trace the whole path
+                <ArrowDownRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:translate-y-0.5" />
+              </a>
+            </motion.div>
+          </Reveal>
         </div>
       </div>
     </section>

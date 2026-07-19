@@ -2,7 +2,6 @@
 
 import {
   useCallback,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -23,8 +22,6 @@ import {
 } from "framer-motion";
 import { experience } from "@/content/site";
 import { Reveal } from "@/components/motion/reveal";
-import { useQuestOptional } from "@/components/quest/quest-provider";
-import { QuestSectionTracker } from "@/components/quest/use-quest-section";
 import { cn } from "@/lib/utils";
 
 /** Chronological: oldest → newest (left → right on the path) */
@@ -91,6 +88,9 @@ function usePathPoints(pathD: string, count: number) {
             return { x: pt.x, y: pt.y };
           });
     document.body.removeChild(svg);
+    // One-time DOM measurement after mount; server renders no pins so this
+    // must land in state post-hydration rather than during render.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPoints(next);
   }, [pathD, count]);
 
@@ -117,23 +117,45 @@ function DetailPanel({
   onSelect: (i: number) => void;
 }) {
   const accent = PIN_ACCENTS[index % PIN_ACCENTS.length];
+  const reduce = useReducedMotion();
   const yearLabel = isPresent(job.dates)
     ? "Present · 2026"
     : parseYear(job.dates);
 
   return (
     <div
-      className="flex h-full max-h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card/80 p-3 backdrop-blur-sm sm:p-4"
+      className="relative flex h-full max-h-full flex-col overflow-hidden rounded-2xl border bg-card/80 p-3 backdrop-blur-sm transition-[border-color,box-shadow] duration-500 sm:p-4"
+      style={{
+        borderColor: `color-mix(in oklch, ${accent} 40%, transparent)`,
+        boxShadow: `0 0 36px color-mix(in oklch, ${accent} 14%, transparent)`,
+      }}
       aria-live="polite"
     >
+      {/* Accent hairline that re-sweeps on every stop change */}
+      <motion.div
+        key={`sweep-${job.id}`}
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-0.5 origin-left"
+        style={{
+          background: `linear-gradient(to right, ${accent}, transparent)`,
+        }}
+        initial={reduce ? false : { scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      />
+
       <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2">
-          <span
+          <motion.span
+            key={`badge-${job.id}`}
+            initial={reduce ? false : { scale: 0.6 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
             className="inline-flex size-7 items-center justify-center rounded-full text-xs font-bold text-background sm:size-8 sm:text-sm"
             style={{ backgroundColor: accent }}
           >
             {String(index + 1).padStart(2, "0")}
-          </span>
+          </motion.span>
           {job.featured && (
             <span className="rounded-full border border-brand/30 bg-brand/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-brand">
               Highlight
@@ -188,7 +210,13 @@ function DetailPanel({
         ))}
       </div>
 
-      <div className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+      <motion.div
+        key={`content-${job.id}`}
+        initial={reduce ? false : { opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1"
+      >
         <h3 className="font-heading text-lg font-semibold sm:text-xl">
           {job.role}
         </h3>
@@ -238,7 +266,7 @@ function DetailPanel({
             ))}
           </ul>
         )}
-      </div>
+      </motion.div>
     </div>
   );
 }
@@ -312,13 +340,13 @@ function RoadmapSvg({
           <stop offset="100%" stopColor="oklch(0.28 0.02 280)" />
         </linearGradient>
         <linearGradient id={glowId} x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.55" />
+          <stop offset="0%" stopColor="var(--brand)" stopOpacity="0.9" />
           <stop
             offset="50%"
             stopColor="var(--brand-secondary)"
-            stopOpacity="0.45"
+            stopOpacity="0.8"
           />
-          <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="var(--brand)" stopOpacity="0.9" />
         </linearGradient>
         <filter id={pinGlowId} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3" result="blur" />
@@ -362,17 +390,28 @@ function RoadmapSvg({
         strokeLinejoin="round"
       />
 
+      {/* Soft luminous halo over the traveled stretch */}
+      <path
+        d={pathD}
+        fill="none"
+        stroke={`url(#${glowId})`}
+        strokeWidth="14"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeDasharray={pathLength}
+        strokeDashoffset={pathLength - drawn}
+        opacity="0.22"
+      />
       <path
         ref={pathRef}
         d={pathD}
         fill="none"
         stroke={`url(#${glowId})`}
-        strokeWidth="4"
+        strokeWidth="5"
         strokeLinecap="round"
         strokeLinejoin="round"
         strokeDasharray={pathLength}
         strokeDashoffset={pathLength - drawn}
-        opacity="0.9"
       />
 
       <path
@@ -414,11 +453,31 @@ function RoadmapSvg({
                 strokeLinecap="round"
                 opacity={active ? 1 : 0.55}
               />
-              <circle
+              {active && !reducedMotion && (
+                <motion.circle
+                  cy="-10"
+                  fill="none"
+                  stroke={accent}
+                  strokeWidth="2"
+                  initial={{ r: 18, opacity: 0.8 }}
+                  animate={{ r: 34, opacity: 0 }}
+                  transition={{
+                    duration: 1.4,
+                    repeat: Infinity,
+                    ease: "easeOut",
+                  }}
+                />
+              )}
+              <motion.circle
                 cy="-10"
-                r={active ? 18 : 15}
                 fill={accent}
                 filter={active ? `url(#${pinGlowId})` : undefined}
+                animate={{ r: active ? 19 : 13, opacity: active ? 1 : 0.7 }}
+                transition={
+                  reducedMotion
+                    ? { duration: 0 }
+                    : { type: "spring", stiffness: 300, damping: 20 }
+                }
               />
               <text
                 y="-6"
@@ -496,9 +555,20 @@ function RoadmapSvg({
               : { type: "spring", stiffness: 120, damping: 22 }
           }
         >
-          <circle r="10" fill="var(--brand-secondary)" opacity="0.25" />
-          <circle r="5" fill="white" />
-          <circle r="3" fill="var(--brand)" />
+          {!reducedMotion && (
+            <motion.circle
+              fill="none"
+              stroke="var(--brand)"
+              strokeWidth="1.5"
+              initial={{ r: 8, opacity: 0.7 }}
+              animate={{ r: 22, opacity: 0 }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
+            />
+          )}
+          <circle r="14" fill="var(--brand)" opacity="0.18" />
+          <circle r="9" fill="var(--brand-secondary)" opacity="0.3" />
+          <circle r="6.5" fill="white" />
+          <circle r="4.5" fill="var(--brand)" />
         </motion.g>
       )}
     </svg>
@@ -511,7 +581,6 @@ const PAGE_VH_PER_STOP = 100;
 export function ExperienceSection() {
   const count = timeline.length;
   const shouldReduceMotion = useReducedMotion();
-  const quest = useQuestOptional();
   const trackRef = useRef<HTMLDivElement>(null);
   const clickLockY = useRef<number | null>(null);
 
@@ -551,9 +620,12 @@ export function ExperienceSection() {
   });
 
   // Collapse highlights when the stop changes so the path stays visible
-  useEffect(() => {
+  // (adjust-state-during-render pattern instead of an effect)
+  const [prevActiveIndex, setPrevActiveIndex] = useState(activeIndex);
+  if (prevActiveIndex !== activeIndex) {
+    setPrevActiveIndex(activeIndex);
     setExpanded([]);
-  }, [activeIndex]);
+  }
 
   const scrollTrackToProgress = useCallback(
     (nextProgress: number) => {
@@ -586,25 +658,12 @@ export function ExperienceSection() {
   const job = timeline[activeIndex];
   const isOpen = expanded.includes(job.id);
 
-  const emitQuest = quest?.emit;
-  const experienceEntered = Boolean(
-    quest?.state.visitedSections.includes("experience"),
-  );
-  useEffect(() => {
-    if (!experienceEntered || !emitQuest) return;
-    const stop = timeline[activeIndex];
-    if (!stop) return;
-    emitQuest({ type: "experience_pin", jobId: stop.id });
-  }, [activeIndex, emitQuest, experienceEntered]);
-
   const toggle = () => {
-    setExpanded((prev) => {
-      const opening = !prev.includes(job.id);
-      if (opening) {
-        quest?.emit({ type: "experience_expand" });
-      }
-      return opening ? [...prev, job.id] : prev.filter((id) => id !== job.id);
-    });
+    setExpanded((prev) =>
+      prev.includes(job.id)
+        ? prev.filter((id) => id !== job.id)
+        : [...prev, job.id],
+    );
   };
 
   const trackHeight = shouldReduceMotion
@@ -707,8 +766,6 @@ export function ExperienceSection() {
 
   return (
     <section id="experience" className="relative">
-      <QuestSectionTracker sectionId="experience" />
-
       <div className="mx-auto max-w-6xl px-4 pt-16 sm:px-6 sm:pt-24">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">

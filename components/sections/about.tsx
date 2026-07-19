@@ -1,11 +1,9 @@
 import { about } from "@/content/site";
 import { Reveal } from "@/components/motion/reveal";
-import { QuestSectionTracker } from "@/components/quest/use-quest-section";
 
 export function AboutSection() {
   return (
     <section id="about" className="py-16 sm:py-24">
-      <QuestSectionTracker sectionId="about" />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">

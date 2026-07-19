@@ -2,10 +2,6 @@ import { ArrowUpRight } from "lucide-react";
 import { projects } from "@/content/site";
 import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/motion/reveal";
-import {
-  QuestGroupTracker,
-  QuestSectionTracker,
-} from "@/components/quest/use-quest-section";
 import { cn } from "@/lib/utils";
 
 /** Same accent cycle as the Experience roadmap pins, for visual continuity. */
@@ -119,7 +115,6 @@ export function ProjectsSection() {
 
   return (
     <section id="projects" className="py-16 sm:py-24">
-      <QuestSectionTracker sectionId="projects" />
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
           <p className="text-sm font-medium uppercase tracking-[0.2em] text-brand">
@@ -138,21 +133,13 @@ export function ProjectsSection() {
           {groups.map((group, gi) => {
             const accent = GROUP_ACCENTS[gi % GROUP_ACCENTS.length];
             const single = group.items.length === 1;
-            const groupId = `project-group-${group.company
-              .toLowerCase()
-              .replace(/[^a-z0-9]+/g, "-")}`;
 
             return (
               <div
                 key={group.company}
-                id={groupId}
                 className="relative grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-12"
                 style={{ "--accent": accent } as React.CSSProperties}
               >
-                <QuestGroupTracker
-                  company={group.company}
-                  elementId={groupId}
-                />
                 {/* Company rail */}
                 <Reveal className="min-w-0">
                   <div className="lg:sticky lg:top-28">

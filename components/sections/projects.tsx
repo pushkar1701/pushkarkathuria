@@ -124,7 +124,7 @@ export function ProjectsSection() {
             A few things I&apos;m proud of shipping.
           </h2>
           <p className="mt-3 max-w-xl text-sm text-muted-foreground sm:text-base">
-            Grouped by where I built them — from consulting programs to
+            Grouped by where I built them - from consulting programs to
             founding-engineer work and things I shipped on my own.
           </p>
         </Reveal>

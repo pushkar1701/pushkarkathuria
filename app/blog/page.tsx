@@ -48,7 +48,7 @@ export default function BlogPage() {
           </h1>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
             Short notes on React, design systems, accessibility, and how UI work
-            actually gets done — when I get around to publishing them.
+            actually gets done - when I get around to publishing them.
           </p>
 
           {posts.length === 0 ? (
@@ -58,7 +58,7 @@ export default function BlogPage() {
                 Nothing here yet
               </h2>
               <p className="mt-2 max-w-md text-muted-foreground">
-                The page is ready. The posts aren&apos;t. Check back later — or
+                The page is ready. The posts aren&apos;t. Check back later - or
                 email me if you want to talk shop before then.
               </p>
               <LinkButton href="/#contact" className="mt-8">

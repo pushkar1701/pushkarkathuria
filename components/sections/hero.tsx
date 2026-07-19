@@ -105,7 +105,7 @@ export function HeroSection() {
           </Reveal>
         </div>
 
-        {/* Personal signal card — about me, not my projects */}
+        {/* Personal signal card - about me, not my projects */}
         <div className="relative hidden lg:block">
           <Reveal delay={0.25} direction="left">
             <motion.div
@@ -135,7 +135,7 @@ export function HeroSection() {
                 Founding Engineer / UI Technical Lead
               </p>
               <p className="mt-1 text-sm font-medium text-brand">
-                Datalogz · Apr 2024 — Present
+                Datalogz · Apr 2024 - Present
               </p>
 
               <div className="my-6 h-px bg-border/60" />

@@ -10,7 +10,7 @@ export function AboutSection() {
             About
           </p>
           <h2 className="mt-3 max-w-3xl font-heading text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl">
-            I build interfaces that hold up when the product — and the team — get bigger.
+            I build interfaces that hold up when the product - and the team - get bigger.
           </h2>
         </Reveal>
 

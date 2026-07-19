@@ -470,8 +470,11 @@ function RoadmapSvg({
               )}
               <motion.circle
                 cy="-10"
+                r={13}
+                opacity={0.7}
                 fill={accent}
                 filter={active ? `url(#${pinGlowId})` : undefined}
+                initial={false}
                 animate={{ r: active ? 19 : 13, opacity: active ? 1 : 0.7 }}
                 transition={
                   reducedMotion
@@ -480,18 +483,18 @@ function RoadmapSvg({
                 }
               />
               <text
-                y="-6"
+                y="-5"
                 textAnchor="middle"
-                className="fill-background font-heading text-[11px] font-bold"
-                style={{ fontSize: 11, fontWeight: 700 }}
+                className="fill-background font-heading font-bold"
+                style={{ fontSize: 14, fontWeight: 700 }}
               >
                 {String(i + 1)}
               </text>
               <text
-                y={compactLabels ? 32 : 34}
+                y={compactLabels ? 38 : 44}
                 textAnchor="middle"
                 style={{
-                  fontSize: compactLabels ? 8 : 10,
+                  fontSize: compactLabels ? 12 : 18,
                   fontFamily: "var(--font-geist-mono), monospace",
                   fill: "oklch(0.72 0.02 280)",
                   opacity: active ? 1 : 0.7,
@@ -501,10 +504,10 @@ function RoadmapSvg({
               </text>
               {present && !compactLabels && (
                 <text
-                  y="48"
+                  y="66"
                   textAnchor="middle"
                   style={{
-                    fontSize: 9,
+                    fontSize: 17,
                     fontFamily: "var(--font-geist-mono), monospace",
                     fill: "var(--brand-secondary)",
                     opacity: active ? 1 : 0.75,
@@ -514,10 +517,10 @@ function RoadmapSvg({
                 </text>
               )}
               <text
-                y={present && !compactLabels ? 62 : compactLabels ? 44 : 50}
+                y={present && !compactLabels ? 90 : compactLabels ? 56 : 68}
                 textAnchor="middle"
                 style={{
-                  fontSize: compactLabels ? 8 : 10,
+                  fontSize: compactLabels ? 12 : 18,
                   fontFamily: "var(--font-syne), sans-serif",
                   fontWeight: 600,
                   fill: active ? accent : "oklch(0.78 0.02 280)",
@@ -556,19 +559,43 @@ function RoadmapSvg({
           }
         >
           {!reducedMotion && (
-            <motion.circle
-              fill="none"
-              stroke="var(--brand)"
-              strokeWidth="1.5"
-              initial={{ r: 8, opacity: 0.7 }}
-              animate={{ r: 22, opacity: 0 }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
-            />
+            <>
+              <motion.circle
+                fill="none"
+                stroke="var(--brand)"
+                strokeWidth="2"
+                initial={{ r: 10, opacity: 0.9 }}
+                animate={{ r: 30, opacity: 0 }}
+                transition={{
+                  duration: 1.4,
+                  repeat: Infinity,
+                  ease: "easeOut",
+                }}
+              />
+              <motion.circle
+                fill="none"
+                stroke="var(--brand-secondary)"
+                strokeWidth="1.5"
+                initial={{ r: 10, opacity: 0.7 }}
+                animate={{ r: 24, opacity: 0 }}
+                transition={{
+                  duration: 1.4,
+                  repeat: Infinity,
+                  ease: "easeOut",
+                  delay: 0.45,
+                }}
+              />
+            </>
           )}
-          <circle r="14" fill="var(--brand)" opacity="0.18" />
-          <circle r="9" fill="var(--brand-secondary)" opacity="0.3" />
-          <circle r="6.5" fill="white" />
-          <circle r="4.5" fill="var(--brand)" />
+          <circle r="18" fill="var(--brand)" opacity="0.2" />
+          <circle
+            r="11"
+            fill="var(--brand-secondary)"
+            opacity="0.35"
+            filter={`url(#${pinGlowId})`}
+          />
+          <circle r="8" fill="white" />
+          <circle r="5.5" fill="var(--brand)" />
         </motion.g>
       )}
     </svg>
@@ -670,6 +697,8 @@ export function ExperienceSection() {
     ? undefined
     : `${Math.max(200, count * PAGE_VH_PER_STOP)}vh`;
 
+  const activeAccent = PIN_ACCENTS[activeIndex % PIN_ACCENTS.length];
+
   const stage = (
     <div
       className={cn(
@@ -691,25 +720,98 @@ export function ExperienceSection() {
       {/* Path owns the upper flex region and cannot be covered by the panel */}
       <div
         className={cn(
-          "relative flex min-h-0 flex-col overflow-hidden rounded-3xl border border-border/70",
+          "relative flex min-h-0 flex-col overflow-hidden rounded-3xl border",
           "bg-gradient-to-b from-card/80 via-background/40 to-card/50",
-          "shadow-[0_0_80px_oklch(from_var(--brand)_l_c_h_/_0.08)]",
+          "transition-[border-color,box-shadow] duration-700",
           shouldReduceMotion ? "h-[min(52vh,420px)]" : "flex-1",
         )}
+        style={{
+          borderColor: `color-mix(in oklch, ${activeAccent} 35%, var(--border))`,
+          boxShadow: `0 0 90px color-mix(in oklch, ${activeAccent} 16%, transparent)`,
+        }}
       >
+        {/* Ambient glow re-tints to the active stop's accent */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-40"
+          className="pointer-events-none absolute inset-0 opacity-50"
           aria-hidden
         >
-          <div className="absolute top-0 left-1/4 size-48 rounded-full bg-brand/20 blur-[80px]" />
-          <div className="absolute right-1/4 bottom-0 size-40 rounded-full bg-brand-secondary/15 blur-[70px]" />
+          <div
+            className="absolute top-0 left-1/4 size-48 rounded-full blur-[80px] transition-colors duration-700"
+            style={{
+              backgroundColor: `color-mix(in oklch, ${activeAccent} 26%, transparent)`,
+            }}
+          />
+          <div
+            className="absolute right-1/4 bottom-0 size-40 rounded-full blur-[70px] transition-colors duration-700"
+            style={{
+              backgroundColor: `color-mix(in oklch, ${activeAccent} 18%, transparent)`,
+            }}
+          />
         </div>
 
-        <div className="relative flex shrink-0 items-center justify-between px-4 pt-3 sm:px-5 sm:pt-4">
+        {/* Giant crossfading year watermark - the loudest "you moved" cue */}
+        <div
+          className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden"
+          aria-hidden
+        >
+          <motion.div
+            key={`watermark-${job.id}`}
+            initial={
+              shouldReduceMotion ? false : { opacity: 0, y: 40, scale: 0.94 }
+            }
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col items-center"
+          >
+            <span
+              className="font-heading text-[clamp(4rem,16vw,11rem)] leading-none font-bold tracking-tight"
+              style={{
+                color: `color-mix(in oklch, ${activeAccent} 14%, transparent)`,
+              }}
+            >
+              {pinYearLabel(job)}
+            </span>
+            <span
+              className="mt-1 font-mono text-sm uppercase tracking-[0.4em] sm:text-base"
+              style={{
+                color: `color-mix(in oklch, ${activeAccent} 34%, transparent)`,
+              }}
+            >
+              {shortCompany(job.company)}
+            </span>
+          </motion.div>
+        </div>
+
+        {/* Journey progress bar pinned to the top edge of the path card */}
+        <div className="absolute inset-x-0 top-0 h-1 bg-border/40" aria-hidden>
+          <div
+            className="h-full rounded-r-full transition-[width] duration-200 ease-out"
+            style={{
+              width: `${Math.round(progress * 100)}%`,
+              background: `linear-gradient(to right, var(--brand), ${activeAccent})`,
+              boxShadow: `0 0 12px ${activeAccent}`,
+            }}
+          />
+        </div>
+
+        <div className="relative flex shrink-0 items-center justify-between gap-2 px-4 pt-3 sm:px-5 sm:pt-4">
           <span className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand sm:text-xs">
             2013
           </span>
-          <span className="rounded-full border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-secondary sm:text-xs">
+          {/* Live stop counter - updates with every scroll stop */}
+          <span
+            className="rounded-full border px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-widest transition-colors duration-500 sm:text-xs"
+            style={{
+              borderColor: `color-mix(in oklch, ${activeAccent} 45%, transparent)`,
+              backgroundColor: `color-mix(in oklch, ${activeAccent} 14%, transparent)`,
+              color: activeAccent,
+            }}
+          >
+            {String(activeIndex + 1).padStart(2, "0")}/
+            {String(count).padStart(2, "0")} ·{" "}
+            {shortCompany(job.company)}
+          </span>
+          <span className="hidden rounded-full border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-secondary sm:inline sm:text-xs">
             Present · 2026
           </span>
         </div>
@@ -744,7 +846,7 @@ export function ExperienceSection() {
         </div>
       </div>
 
-      {/* Panel is height-capped; highlights scroll inside — never overlaps path */}
+      {/* Panel is height-capped; highlights scroll inside - never overlaps path */}
       <div className="h-[min(34svh,300px)] shrink-0 sm:h-[min(32svh,280px)]">
         <DetailPanel
           job={job}
@@ -775,7 +877,7 @@ export function ExperienceSection() {
             Places I&apos;ve done the work.
           </h2>
           <p className="mt-4 max-w-2xl text-muted-foreground">
-            A winding path from where I started to where I am now — once this
+            A winding path from where I started to where I am now - once this
             stage pins, keep scrolling to travel, or tap a pin to jump.
           </p>
         </Reveal>

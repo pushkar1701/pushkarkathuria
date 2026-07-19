@@ -18,7 +18,7 @@ export function ContactSection() {
               Got a frontend problem worth solving? Say hi.
             </h2>
             <p className="mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
-              I&apos;m looking for Senior / Staff Frontend or UI Architect roles —
+              I&apos;m looking for Senior / Staff Frontend or UI Architect roles - 
               remote, or relocating if the work is right.
             </p>
 

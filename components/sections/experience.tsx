@@ -118,20 +118,20 @@ function DetailPanel({
 }) {
   const accent = PIN_ACCENTS[index % PIN_ACCENTS.length];
   const reduce = useReducedMotion();
-  const yearLabel = isPresent(job.dates)
-    ? "Present · 2026"
-    : parseYear(job.dates);
+  const dateLabel = isPresent(job.dates)
+    ? job.dates.replace(/Present/i, "Present · 2026")
+    : job.dates;
+  const companyLabel = shortCompany(job.company);
 
   return (
     <div
-      className="relative flex h-full max-h-full flex-col overflow-hidden rounded-2xl border bg-card/80 p-3 backdrop-blur-sm transition-[border-color,box-shadow] duration-500 sm:p-4"
+      className="relative flex h-full max-h-full flex-col overflow-hidden rounded-2xl border bg-card/80 p-3 backdrop-blur-sm transition-[border-color,box-shadow] duration-500 sm:p-3.5"
       style={{
         borderColor: `color-mix(in oklch, ${accent} 40%, transparent)`,
         boxShadow: `0 0 36px color-mix(in oklch, ${accent} 14%, transparent)`,
       }}
       aria-live="polite"
     >
-      {/* Accent hairline that re-sweeps on every stop change */}
       <motion.div
         key={`sweep-${job.id}`}
         aria-hidden
@@ -144,128 +144,128 @@ function DetailPanel({
         transition={{ duration: 0.5, ease: "easeOut" }}
       />
 
-      <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Nav + stop dots in one compact row */}
+      <div className="flex shrink-0 items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           <motion.span
             key={`badge-${job.id}`}
             initial={reduce ? false : { scale: 0.6 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 400, damping: 18 }}
-            className="inline-flex size-7 items-center justify-center rounded-full text-xs font-bold text-background sm:size-8 sm:text-sm"
+            className="inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-background sm:size-7 sm:text-xs"
             style={{ backgroundColor: accent }}
           >
             {String(index + 1).padStart(2, "0")}
           </motion.span>
-          {job.featured && (
-            <span className="rounded-full border border-brand/30 bg-brand/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-brand">
-              Highlight
-            </span>
-          )}
-          <span className="font-mono text-xs text-muted-foreground">
-            {yearLabel}
-          </span>
+          <div
+            className="flex flex-wrap gap-1"
+            role="tablist"
+            aria-label="Experience stops"
+          >
+            {timeline.map((item, i) => (
+              <button
+                key={item.id}
+                type="button"
+                role="tab"
+                aria-selected={i === index}
+                onClick={() => onSelect(i)}
+                className={cn(
+                  "size-2 rounded-full transition-transform",
+                  i === index ? "scale-125" : "opacity-40 hover:opacity-80",
+                )}
+                style={{
+                  backgroundColor: PIN_ACCENTS[i % PIN_ACCENTS.length],
+                }}
+                aria-label={`${item.role} at ${item.company}`}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex shrink-0 items-center gap-1">
           <button
             type="button"
             onClick={onPrev}
             disabled={index === 0}
-            className="inline-flex size-8 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-30 sm:size-9"
+            className="inline-flex size-7 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-30 sm:size-8"
             aria-label="Previous stop"
           >
-            <ChevronLeft className="size-4" />
+            <ChevronLeft className="size-3.5" />
           </button>
           <button
             type="button"
             onClick={onNext}
             disabled={index === total - 1}
-            className="inline-flex size-8 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-30 sm:size-9"
+            className="inline-flex size-7 items-center justify-center rounded-full border border-border/80 text-muted-foreground transition-colors hover:border-brand/40 hover:text-brand disabled:opacity-30 sm:size-8"
             aria-label="Next stop"
           >
-            <ChevronRight className="size-4" />
+            <ChevronRight className="size-3.5" />
           </button>
         </div>
       </div>
 
-      <div
-        className="mt-3 flex shrink-0 flex-wrap gap-1.5"
-        role="tablist"
-        aria-label="Experience stops"
-      >
-        {timeline.map((item, i) => (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            aria-selected={i === index}
-            onClick={() => onSelect(i)}
-            className={cn(
-              "size-2.5 rounded-full transition-transform",
-              i === index ? "scale-125" : "opacity-40 hover:opacity-80",
-            )}
-            style={{ backgroundColor: PIN_ACCENTS[i % PIN_ACCENTS.length] }}
-            aria-label={`${item.role} at ${item.company}`}
-          />
-        ))}
-      </div>
-
       <motion.div
         key={`content-${job.id}`}
-        initial={reduce ? false : { opacity: 0, y: 14 }}
+        initial={reduce ? false : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
-        className="mt-3 min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1"
+        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="mt-2.5 flex min-h-0 flex-1 flex-col"
       >
-        <h3 className="font-heading text-lg font-semibold sm:text-xl">
-          {job.role}
+        {/* Single-line title: Role at Company */}
+        <h3 className="font-heading text-base leading-snug font-semibold sm:text-lg">
+          {job.role}{" "}
+          <span className="font-medium text-muted-foreground">at</span>{" "}
+          <span style={{ color: accent }}>{companyLabel}</span>
+          {job.featured && (
+            <span className="ml-2 align-middle rounded-full border border-brand/30 bg-brand/10 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider text-brand">
+              Highlight
+            </span>
+          )}
         </h3>
-        <p className="mt-0.5 text-sm font-medium" style={{ color: accent }}>
-          {job.company}
-        </p>
-        <p className="mt-1.5 flex flex-col gap-0.5 text-xs text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2 sm:text-sm">
-          <span>
-            {isPresent(job.dates)
-              ? job.dates.replace(/Present/i, "Present · 2026")
-              : job.dates}
-          </span>
-          <span className="hidden text-muted-foreground/50 sm:inline">·</span>
+
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+          <span>{dateLabel}</span>
+          <span className="text-muted-foreground/40">·</span>
           <span className="inline-flex items-center gap-1">
-            <MapPin className="size-3.5 shrink-0" />
+            <MapPin className="size-3 shrink-0" />
             {job.location}
           </span>
         </p>
-        <p className="mt-1.5 line-clamp-2 text-xs text-muted-foreground/85 sm:text-sm">
+
+        <p className="mt-1 line-clamp-1 text-xs text-muted-foreground/80">
           {job.context}
         </p>
 
-        <button
-          type="button"
-          onClick={onToggle}
-          className="mt-3 flex w-full items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/40 px-3 py-2.5 text-left text-sm font-medium transition-colors hover:border-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-          aria-expanded={isOpen}
-        >
-          <span>{isOpen ? "Hide what I did" : "What I did here"}</span>
-          <ChevronDown
-            className={cn(
-              "size-4 shrink-0 text-muted-foreground transition-transform",
-              isOpen && "rotate-180 text-brand",
-            )}
-          />
-        </button>
+        {/* Accordion stays pinned at the bottom of the card - never cut off */}
+        <div className="mt-auto flex min-h-0 flex-col pt-2">
+          <button
+            type="button"
+            onClick={onToggle}
+            className="flex w-full shrink-0 items-center justify-between gap-3 rounded-xl border border-border/60 bg-background/40 px-3 py-2 text-left text-sm font-medium transition-colors hover:border-brand/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+            aria-expanded={isOpen}
+          >
+            <span>{isOpen ? "Hide what I did" : "What I did here"}</span>
+            <ChevronDown
+              className={cn(
+                "size-4 shrink-0 text-muted-foreground transition-transform",
+                isOpen && "rotate-180 text-brand",
+              )}
+            />
+          </button>
 
-        {isOpen && (
-          <ul className="mt-2 flex flex-col gap-2 px-1 pb-1">
-            {job.highlights.map((highlight) => (
-              <li
-                key={highlight}
-                className="text-xs leading-relaxed text-muted-foreground before:mr-2 before:text-brand before:content-['→'] sm:text-sm"
-              >
-                {highlight}
-              </li>
-            ))}
-          </ul>
-        )}
+          {isOpen && (
+            <ul className="mt-1.5 min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain px-1 pb-0.5">
+              {job.highlights.map((highlight) => (
+                <li
+                  key={highlight}
+                  className="text-xs leading-relaxed text-muted-foreground before:mr-2 before:text-brand before:content-['→']"
+                >
+                  {highlight}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </motion.div>
     </div>
   );
@@ -555,7 +555,7 @@ function RoadmapSvg({
           transition={
             reducedMotion
               ? { duration: 0 }
-              : { type: "spring", stiffness: 120, damping: 22 }
+              : { type: "spring", stiffness: 180, damping: 20 }
           }
         >
           {!reducedMotion && (
@@ -602,8 +602,9 @@ function RoadmapSvg({
   );
 }
 
-/** Page-scroll distance reserved per stop while the stage is pinned. */
-const PAGE_VH_PER_STOP = 100;
+/** Page-scroll distance reserved per stop while the stage is pinned.
+ *  Higher = more intentional scrolling between companies. */
+const PAGE_VH_PER_STOP = 155;
 
 export function ExperienceSection() {
   const count = timeline.length;
@@ -626,9 +627,9 @@ export function ExperienceSection() {
   });
 
   const smoothProgress = useSpring(scrollYProgress, {
-    stiffness: shouldReduceMotion ? 1000 : 100,
-    damping: shouldReduceMotion ? 100 : 28,
-    mass: 0.35,
+    stiffness: shouldReduceMotion ? 1000 : 140,
+    damping: shouldReduceMotion ? 100 : 26,
+    mass: 0.28,
   });
 
   useMotionValueEvent(smoothProgress, "change", (v) => {
@@ -798,18 +799,20 @@ export function ExperienceSection() {
           <span className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand sm:text-xs">
             2013
           </span>
-          {/* Live stop counter - updates with every scroll stop */}
+          {/* Tenure + role for the active stop */}
           <span
-            className="rounded-full border px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-widest transition-colors duration-500 sm:text-xs"
+            className="max-w-[min(100%,22rem)] truncate rounded-full border px-3 py-1 font-mono text-[10px] font-semibold tracking-wide transition-colors duration-500 sm:max-w-[28rem] sm:text-xs"
             style={{
               borderColor: `color-mix(in oklch, ${activeAccent} 45%, transparent)`,
               backgroundColor: `color-mix(in oklch, ${activeAccent} 14%, transparent)`,
               color: activeAccent,
             }}
+            title={`${isPresent(job.dates) ? job.dates.replace(/Present/i, "Present · 2026") : job.dates} · ${job.role}`}
           >
-            {String(activeIndex + 1).padStart(2, "0")}/
-            {String(count).padStart(2, "0")} ·{" "}
-            {shortCompany(job.company)}
+            {isPresent(job.dates)
+              ? job.dates.replace(/Present/i, "Present · 2026")
+              : job.dates}{" "}
+            · {job.role}
           </span>
           <span className="hidden rounded-full border border-brand-secondary/30 bg-brand-secondary/10 px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-brand-secondary sm:inline sm:text-xs">
             Present · 2026
@@ -846,8 +849,8 @@ export function ExperienceSection() {
         </div>
       </div>
 
-      {/* Panel is height-capped; highlights scroll inside - never overlaps path */}
-      <div className="h-[min(34svh,300px)] shrink-0 sm:h-[min(32svh,280px)]">
+      {/* Compact panel - accordion stays visible without hunting for a scroll area */}
+      <div className="h-[min(30svh,260px)] shrink-0 sm:h-[min(28svh,240px)]">
         <DetailPanel
           job={job}
           index={activeIndex}

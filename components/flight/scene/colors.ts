@@ -6,21 +6,12 @@
 // and then a canvas 2D context (which always serializes fillStyle as
 // #rrggbb / rgba(...), per spec — sidestepping newer wide-gamut
 // color(srgb ...) serializations that THREE.Color.setStyle can't parse).
-let probe: HTMLDivElement | null = null;
+//
+// The probe element is created, appended, sampled, and removed within a
+// single call rather than kept around, so it never lingers as an orphaned
+// node in the document. Resolved values are cached by input string so this
+// only runs once per distinct color.
 const cache = new Map<string, string>();
-
-function getProbe(): HTMLDivElement {
-  if (!probe) {
-    probe = document.createElement("div");
-    probe.style.position = "fixed";
-    probe.style.left = "-9999px";
-    probe.style.top = "-9999px";
-    probe.style.pointerEvents = "none";
-    probe.style.opacity = "0";
-    document.body.appendChild(probe);
-  }
-  return probe;
-}
 
 export function resolveCssColor(value: string, fallback = "#ffffff"): string {
   if (typeof document === "undefined") return fallback;
@@ -28,7 +19,14 @@ export function resolveCssColor(value: string, fallback = "#ffffff"): string {
   const cached = cache.get(value);
   if (cached) return cached;
 
-  const el = getProbe();
+  const el = document.createElement("div");
+  el.style.position = "fixed";
+  el.style.left = "-9999px";
+  el.style.top = "-9999px";
+  el.style.pointerEvents = "none";
+  el.style.opacity = "0";
+  document.body.appendChild(el);
+
   el.style.color = fallback;
   el.style.color = value;
   const computed = getComputedStyle(el).color;
@@ -46,6 +44,7 @@ export function resolveCssColor(value: string, fallback = "#ffffff"): string {
     }
   }
 
+  document.body.removeChild(el);
   cache.set(value, resolved);
   return resolved;
 }

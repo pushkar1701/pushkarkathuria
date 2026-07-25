@@ -7,6 +7,7 @@ import {
   createKeyState,
   isEditableTarget,
   isMovementKey,
+  resetKeyState,
 } from "@/lib/flight/controls";
 import { nextWaypoint } from "@/lib/flight/path";
 import { buildFlightWaypoints } from "@/lib/flight/waypoints";
@@ -41,11 +42,19 @@ export default function FlightCanvas({ visited, onVisit }: FlightCanvasProps) {
       applyKeyEvent(keyState, event, false);
     }
 
+    function handleBlur() {
+      // Missed keyups (alt-tab, devtools focus, etc.) would otherwise leave
+      // movement "stuck" on; clear everything when the window loses focus.
+      resetKeyState(keyState);
+    }
+
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("blur", handleBlur);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("blur", handleBlur);
     };
   }, [keyState]);
 

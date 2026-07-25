@@ -21,7 +21,10 @@ const SOFT_MARGIN = 3;
 const HARD_MARGIN = 1;
 const CAPTURE_RADIUS = 2.5;
 const MAGNET_CONE_COS = Math.cos((60 * Math.PI) / 180);
-const MAGNET_STRENGTH = 0.035;
+// Per-second blend rate; scaled by dt below so the magnet's pull toward the
+// target converges at the same rate regardless of frame rate. Chosen so
+// that at 60fps this reproduces the previous fixed per-frame blend of 0.035.
+const MAGNET_STRENGTH_PER_SECOND = 2.1;
 const CHASE_DISTANCE = 9;
 const CHASE_HEIGHT = 3.5;
 const CAMERA_DAMPING = 3.5;
@@ -102,7 +105,8 @@ export function Plane({ keyState, waypoints, visited, onVisit }: PlaneProps) {
       const facing = fx * toNormX + fz * toNormZ;
 
       if (facing > MAGNET_CONE_COS) {
-        const [sx, sz] = magnetSteer([fx, fz], [toNormX, toNormZ], MAGNET_STRENGTH);
+        const magnetStrength = clamp01(MAGNET_STRENGTH_PER_SECOND * dt);
+        const [sx, sz] = magnetSteer([fx, fz], [toNormX, toNormZ], magnetStrength);
         heading = Math.atan2(-sx, -sz);
         headingRef.current = heading;
         fx = sx;

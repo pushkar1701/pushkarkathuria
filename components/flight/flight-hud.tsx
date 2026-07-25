@@ -1,11 +1,34 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type MouseEvent } from "react";
+import { useRouter } from "next/navigation";
 import { flightCopy } from "@/content/flight";
 import { LinkButton } from "@/components/link-button";
 import { nextWaypoint } from "@/lib/flight/path";
 import { buildFlightWaypoints, type FlightWaypoint } from "@/lib/flight/waypoints";
 import { cn } from "@/lib/utils";
+
+/** Close the overlay first, then navigate on the next frame so the
+ * `overflow: hidden` unlock (triggered by the close) commits before we
+ * change the hash / route, otherwise the browser can't scroll to the
+ * target while the body is still locked. */
+function useOverlayNavigate(onClose: () => void) {
+  const router = useRouter();
+  return useCallback(
+    (href: string) => (event: MouseEvent) => {
+      event.preventDefault();
+      onClose();
+      window.requestAnimationFrame(() => {
+        if (href.startsWith("#")) {
+          window.location.hash = href;
+        } else {
+          router.push(href);
+        }
+      });
+    },
+    [onClose, router],
+  );
+}
 
 function LandButton({
   onClick,
@@ -78,6 +101,7 @@ function CreditsCard({
   waypoints: FlightWaypoint[];
   onClose: () => void;
 }) {
+  const navigate = useOverlayNavigate(onClose);
   return (
     <div className="pointer-events-auto absolute inset-0 z-10 grid place-items-center bg-background/85 p-6 backdrop-blur-sm">
       <div className="w-full max-w-sm rounded-2xl border border-border bg-card p-6 text-center shadow-xl sm:max-w-md sm:p-8">
@@ -105,10 +129,10 @@ function CreditsCard({
           ))}
         </ul>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <LinkButton href="#contact" onClick={onClose}>
+          <LinkButton href="#contact" onClick={navigate("#contact")}>
             {flightCopy.contact}
           </LinkButton>
-          <LinkButton href="/resume" variant="outline" onClick={onClose}>
+          <LinkButton href="/resume" variant="outline" onClick={navigate("/resume")}>
             {flightCopy.resume}
           </LinkButton>
           <LandButton onClick={onClose} />
@@ -205,6 +229,7 @@ export function DesktopOnlyPanel({ onClose }: { onClose: () => void }) {
 
 export function ReducedMotionRouteList({ onClose }: { onClose: () => void }) {
   const waypoints = useMemo(() => buildFlightWaypoints(), []);
+  const navigate = useOverlayNavigate(onClose);
 
   return (
     <div className="grid h-full place-items-center overflow-y-auto p-6">
@@ -237,10 +262,10 @@ export function ReducedMotionRouteList({ onClose }: { onClose: () => void }) {
           ))}
         </ol>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          <LinkButton href="#contact" onClick={onClose}>
+          <LinkButton href="#contact" onClick={navigate("#contact")}>
             {flightCopy.contact}
           </LinkButton>
-          <LinkButton href="/resume" variant="outline" onClick={onClose}>
+          <LinkButton href="/resume" variant="outline" onClick={navigate("/resume")}>
             {flightCopy.resume}
           </LinkButton>
           <LandButton onClick={onClose} />

@@ -53,6 +53,15 @@ export function createKeyState(): KeyState {
   return state;
 }
 
+/** Clears all tracked key presses, e.g. on window blur, so movement doesn't
+ * "stick" if a keyup is missed while the window is unfocused. */
+export function resetKeyState(state: KeyState) {
+  pressedCodes(state).clear();
+  state.pitch = 0;
+  state.yaw = 0;
+  state.throttle = 0;
+}
+
 export function applyKeyEvent(
   state: KeyState,
   e: Pick<KeyboardEvent, "code" | "repeat">,

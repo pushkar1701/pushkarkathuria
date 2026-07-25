@@ -11,6 +11,7 @@ export function FooterTrigger() {
   return (
     <button
       type="button"
+      data-flight-trigger="true"
       onClick={flight.open}
       aria-label={flightCopy.footerAria}
       className="text-muted-foreground opacity-40 transition-[color,opacity] hover:text-brand hover:opacity-100"

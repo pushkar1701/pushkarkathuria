@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { siteConfig } from "@/content/site";
 import { Separator } from "@/components/ui/separator";
+import { FooterTrigger } from "@/components/flight/footer-trigger";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -44,6 +45,7 @@ export function Footer() {
             >
               Resume
             </a>
+            <FooterTrigger />
           </div>
         </div>
         <Separator />

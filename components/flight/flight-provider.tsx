@@ -88,9 +88,13 @@ export function FlightProvider({ children }: { children: ReactNode }) {
 }
 
 export function useFlight() {
-  const context = useContext(FlightContext);
+  const context = useFlightOptional();
   if (!context) {
     throw new Error("useFlight must be used within FlightProvider");
   }
   return context;
+}
+
+export function useFlightOptional() {
+  return useContext(FlightContext);
 }

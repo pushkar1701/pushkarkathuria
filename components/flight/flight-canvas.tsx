@@ -2,10 +2,15 @@
 
 import { useEffect, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { applyKeyEvent, createKeyState, isEditableTarget } from "@/lib/flight/controls";
+import {
+  applyKeyEvent,
+  createKeyState,
+  isEditableTarget,
+  isMovementKey,
+} from "@/lib/flight/controls";
 import { nextWaypoint } from "@/lib/flight/path";
 import { buildFlightWaypoints } from "@/lib/flight/waypoints";
-import { Plane } from "./scene/plane";
+import { getInitialCameraPosition, Plane } from "./scene/plane";
 import { PathLine } from "./scene/path-line";
 import { Waypoints } from "./scene/waypoints";
 import { World } from "./scene/world";
@@ -18,6 +23,7 @@ export type FlightCanvasProps = {
 export default function FlightCanvas({ visited, onVisit }: FlightCanvasProps) {
   const keyState = useMemo(() => createKeyState(), []);
   const waypoints = useMemo(() => buildFlightWaypoints(), []);
+  const cameraPosition = useMemo(() => getInitialCameraPosition(waypoints), [waypoints]);
   const nextId = useMemo(
     () => nextWaypoint(waypoints, visited)?.id ?? null,
     [waypoints, visited],
@@ -26,10 +32,12 @@ export default function FlightCanvas({ visited, onVisit }: FlightCanvasProps) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (isEditableTarget(event.target)) return;
+      if (isMovementKey(event.code)) event.preventDefault();
       applyKeyEvent(keyState, event, true);
     }
     function handleKeyUp(event: KeyboardEvent) {
       if (isEditableTarget(event.target)) return;
+      if (isMovementKey(event.code)) event.preventDefault();
       applyKeyEvent(keyState, event, false);
     }
 
@@ -44,7 +52,7 @@ export default function FlightCanvas({ visited, onVisit }: FlightCanvasProps) {
   return (
     <Canvas
       dpr={[1, 1.5]}
-      camera={{ position: [-10, 6, 12], fov: 50 }}
+      camera={{ position: cameraPosition, fov: 50 }}
       shadows={false}
     >
       <World />

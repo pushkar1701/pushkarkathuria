@@ -12,6 +12,16 @@ const THROTTLE = new Set(["ShiftLeft", "ShiftRight"]);
 
 const pressedByState = new WeakMap<KeyState, Set<string>>();
 
+export function isMovementKey(code: string) {
+  return (
+    PITCH_UP.has(code) ||
+    PITCH_DOWN.has(code) ||
+    YAW_LEFT.has(code) ||
+    YAW_RIGHT.has(code) ||
+    THROTTLE.has(code)
+  );
+}
+
 function pressedCodes(state: KeyState): Set<string> {
   let set = pressedByState.get(state);
   if (!set) {
@@ -50,14 +60,7 @@ export function applyKeyEvent(
 ) {
   if (e.repeat) return;
 
-  const movement =
-    PITCH_UP.has(e.code) ||
-    PITCH_DOWN.has(e.code) ||
-    YAW_LEFT.has(e.code) ||
-    YAW_RIGHT.has(e.code) ||
-    THROTTLE.has(e.code);
-
-  if (!movement) return;
+  if (!isMovementKey(e.code)) return;
 
   const pressed = pressedCodes(state);
   if (down) pressed.add(e.code);

@@ -26,6 +26,26 @@ const CHASE_DISTANCE = 9;
 const CHASE_HEIGHT = 3.5;
 const CAMERA_DAMPING = 3.5;
 
+export function getInitialPlanePose(waypoints: FlightWaypoint[]) {
+  const first = waypoints[0];
+  if (!first) {
+    return { position: new THREE.Vector3(0, 4, 12), heading: Math.PI };
+  }
+  const [x, y, z] = first.position;
+  return { position: new THREE.Vector3(x - 10, y + 2, z), heading: -Math.PI / 2 };
+}
+
+export function getInitialCameraPosition(waypoints: FlightWaypoint[]) {
+  const { position, heading } = getInitialPlanePose(waypoints);
+  const fx = -Math.sin(heading);
+  const fz = -Math.cos(heading);
+  return [
+    position.x - fx * CHASE_DISTANCE,
+    position.y + CHASE_HEIGHT,
+    position.z - fz * CHASE_DISTANCE,
+  ] as [number, number, number];
+}
+
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value));
 }
@@ -54,14 +74,7 @@ export function Plane({ keyState, waypoints, visited, onVisit }: PlaneProps) {
   const { camera } = useThree();
   const groupRef = useRef<THREE.Group>(null);
 
-  const initial = useMemo(() => {
-    const first = waypoints[0];
-    if (!first) {
-      return { position: new THREE.Vector3(0, 4, 12), heading: Math.PI };
-    }
-    const [x, y, z] = first.position;
-    return { position: new THREE.Vector3(x - 10, y + 2, z), heading: -Math.PI / 2 };
-  }, [waypoints]);
+  const initial = useMemo(() => getInitialPlanePose(waypoints), [waypoints]);
 
   const positionRef = useRef(initial.position.clone());
   const headingRef = useRef(initial.heading);

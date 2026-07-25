@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { flightCopy } from "@/content/flight";
 import { useFlight } from "./flight-provider";
@@ -30,6 +30,19 @@ function LandButton({ onClick }: { onClick: () => void }) {
 export function FlightShell() {
   const { close, isOpen } = useFlight();
   const [useFallback, setUseFallback] = useState<boolean | null>(null);
+  const [visited, setVisited] = useState<Set<string>>(() => new Set());
+
+  // Reset progress each time the overlay opens (adjust state while
+  // rendering, per React's guidance, instead of in an effect).
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) setVisited(new Set());
+  }
+
+  const handleVisit = useCallback((id: string) => {
+    setVisited((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -73,7 +86,7 @@ export function FlightShell() {
     >
       {useFallback === false ? (
         <>
-          <FlightCanvas />
+          <FlightCanvas visited={visited} onVisit={handleVisit} />
           <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 sm:p-6">
             <h2 id="flight-title" className="font-heading text-xl font-bold">
               {flightCopy.title}

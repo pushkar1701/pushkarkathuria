@@ -9,8 +9,11 @@ import {
   isMovementKey,
   resetKeyState,
 } from "@/lib/flight/controls";
+import type { ArcadeRing, ArcadeRock } from "@/lib/flight/arcade";
+import type { CraftDef, SkyTheme } from "@/lib/flight/loadout";
 import { nextWaypoint } from "@/lib/flight/path";
 import { buildFlightWaypoints } from "@/lib/flight/waypoints";
+import { ArcadeField } from "./scene/arcade-field";
 import { getInitialCameraPosition, Plane } from "./scene/plane";
 import { PathLine } from "./scene/path-line";
 import { Waypoints } from "./scene/waypoints";
@@ -19,12 +22,32 @@ import { World } from "./scene/world";
 export type FlightCanvasProps = {
   visited: Set<string>;
   onVisit: (id: string) => void;
+  sky: SkyTheme;
+  craft: CraftDef;
+  rings: ArcadeRing[];
+  rocks: ArcadeRock[];
+  collectedRingIds: Set<string>;
+  onRing: (id: string) => void;
+  onHit: () => void;
 };
 
-export default function FlightCanvas({ visited, onVisit }: FlightCanvasProps) {
+export default function FlightCanvas({
+  visited,
+  onVisit,
+  sky,
+  craft,
+  rings,
+  rocks,
+  collectedRingIds,
+  onRing,
+  onHit,
+}: FlightCanvasProps) {
   const keyState = useMemo(() => createKeyState(), []);
   const waypoints = useMemo(() => buildFlightWaypoints(), []);
-  const cameraPosition = useMemo(() => getInitialCameraPosition(waypoints), [waypoints]);
+  const cameraPosition = useMemo(
+    () => getInitialCameraPosition(waypoints),
+    [waypoints],
+  );
   const nextId = useMemo(
     () => nextWaypoint(waypoints, visited)?.id ?? null,
     [waypoints, visited],
@@ -41,10 +64,7 @@ export default function FlightCanvas({ visited, onVisit }: FlightCanvasProps) {
       if (isMovementKey(event.code)) event.preventDefault();
       applyKeyEvent(keyState, event, false);
     }
-
     function handleBlur() {
-      // Missed keyups (alt-tab, devtools focus, etc.) would otherwise leave
-      // movement "stuck" on; clear everything when the window loses focus.
       resetKeyState(keyState);
     }
 
@@ -64,14 +84,26 @@ export default function FlightCanvas({ visited, onVisit }: FlightCanvasProps) {
       camera={{ position: cameraPosition, fov: 50 }}
       shadows={false}
     >
-      <World />
-      <PathLine waypoints={waypoints} />
+      <World sky={sky} />
+      <PathLine waypoints={waypoints} color={sky.brandSecondary} />
+      <ArcadeField
+        rings={rings}
+        rocks={rocks}
+        collectedRingIds={collectedRingIds}
+        sky={sky}
+      />
       <Waypoints waypoints={waypoints} visited={visited} nextId={nextId} />
       <Plane
         keyState={keyState}
         waypoints={waypoints}
         visited={visited}
         onVisit={onVisit}
+        craft={craft}
+        rings={rings}
+        rocks={rocks}
+        collectedRingIds={collectedRingIds}
+        onRing={onRing}
+        onHit={onHit}
       />
     </Canvas>
   );

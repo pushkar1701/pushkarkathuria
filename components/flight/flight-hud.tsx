@@ -99,13 +99,13 @@ function StopCard({
 function CreditsCard({
   waypoints,
   onClose,
-  endless,
   onKeepFlying,
+  score,
 }: {
   waypoints: FlightWaypoint[];
   onClose: () => void;
-  endless: boolean;
   onKeepFlying: () => void;
+  score: number;
 }) {
   const navigate = useOverlayNavigate(onClose);
   return (
@@ -116,6 +116,9 @@ function CreditsCard({
         </h3>
         <p className="mt-3 text-sm text-muted-foreground">
           {flightCopy.creditsBody}
+        </p>
+        <p className="mt-3 font-mono text-lg text-brand">
+          {flightCopy.scoreLabel} {score.toLocaleString()}
         </p>
         <ul className="mt-5 flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5">
           {waypoints.map((waypoint, index) => (
@@ -135,9 +138,7 @@ function CreditsCard({
           ))}
         </ul>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-          {endless ? (
-            <LandButton onClick={onKeepFlying} label={flightCopy.keepFlying} />
-          ) : null}
+          <LandButton onClick={onKeepFlying} label={flightCopy.keepFlying} />
           <LinkButton href="#contact" onClick={navigate("#contact")}>
             {flightCopy.contact}
           </LinkButton>
@@ -157,12 +158,16 @@ export function FlightHud({
   endless,
   onEndlessChange,
   onLoopRoute,
+  score,
+  combo,
 }: {
   visited: Set<string>;
   close: () => void;
   endless: boolean;
   onEndlessChange: (value: boolean) => void;
   onLoopRoute: () => void;
+  score: number;
+  combo: number;
 }) {
   const waypoints = useMemo(() => buildFlightWaypoints(), []);
   const total = waypoints.length;
@@ -190,7 +195,6 @@ export function FlightHud({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // Endless mode: finish the loop, then silently restart the route.
   useEffect(() => {
     if (!endless || !complete) return;
     onLoopRoute();
@@ -207,6 +211,12 @@ export function FlightHud({
           </h2>
           <span className="font-mono text-xs text-muted-foreground">
             {flightCopy.progress(visited.size, total)}
+          </span>
+          <span className="rounded-full border border-brand/30 bg-brand/10 px-2.5 py-0.5 font-mono text-[10px] text-brand">
+            {flightCopy.scoreLabel} {score.toLocaleString()}
+          </span>
+          <span className="rounded-full border border-brand-secondary/30 bg-brand-secondary/10 px-2.5 py-0.5 font-mono text-[10px] text-brand-secondary">
+            {flightCopy.comboLabel} ×{combo.toFixed(1)}
           </span>
           {endless ? (
             <span className="rounded-full border border-brand-secondary/40 bg-brand-secondary/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-secondary">
@@ -251,7 +261,7 @@ export function FlightHud({
         <CreditsCard
           waypoints={waypoints}
           onClose={close}
-          endless={endless}
+          score={score}
           onKeepFlying={() => {
             onEndlessChange(true);
             onLoopRoute();

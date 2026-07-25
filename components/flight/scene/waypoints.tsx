@@ -39,7 +39,7 @@ function Beacon({
 
   return (
     <mesh ref={meshRef} position={waypoint.position}>
-      <icosahedronGeometry args={[1.1, 0]} />
+      <icosahedronGeometry args={[0.85, 0]} />
       <meshStandardMaterial
         color={color}
         emissive={color}
@@ -47,7 +47,7 @@ function Beacon({
         roughness={0.35}
         metalness={0.1}
         transparent
-        opacity={isVisited ? 0.5 : 1}
+        opacity={isVisited ? 0.35 : 0.9}
       />
     </mesh>
   );

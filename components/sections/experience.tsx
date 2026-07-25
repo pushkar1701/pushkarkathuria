@@ -22,6 +22,7 @@ import {
 } from "framer-motion";
 import { experience } from "@/content/site";
 import { Reveal } from "@/components/motion/reveal";
+import { FlightCta } from "@/components/flight/flight-cta";
 import { cn } from "@/lib/utils";
 
 /** Chronological: oldest → newest (left → right on the path) */
@@ -883,6 +884,7 @@ export function ExperienceSection() {
             A winding path from where I started to where I am now - once this
             stage pins, keep scrolling to travel, or tap a pin to jump.
           </p>
+          <FlightCta variant="experience" />
         </Reveal>
       </div>
 

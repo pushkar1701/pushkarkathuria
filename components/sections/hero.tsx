@@ -6,6 +6,7 @@ import { hero, siteConfig } from "@/content/site";
 import { LinkButton } from "@/components/link-button";
 import { Badge } from "@/components/ui/badge";
 import { Reveal } from "@/components/motion/reveal";
+import { FlightCta } from "@/components/flight/flight-cta";
 
 const stats = [
   { value: "13+", label: "years building web UIs", accent: "var(--brand)" },
@@ -81,6 +82,7 @@ export function HeroSection() {
                 <Download data-icon="inline-start" />
                 Resume
               </LinkButton>
+              <FlightCta variant="hero" className="h-11 rounded-xl px-5" />
             </div>
           </Reveal>
 

@@ -63,6 +63,7 @@ export function FlightShell() {
   const coarsePointer = useMediaQuery("(pointer: coarse)", false);
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)", true);
   const [visited, setVisited] = useState<Set<string>>(() => new Set());
+  const [endless, setEndless] = useState(false);
 
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -72,11 +73,18 @@ export function FlightShell() {
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   if (isOpen !== prevIsOpen) {
     setPrevIsOpen(isOpen);
-    if (isOpen) setVisited(new Set());
+    if (isOpen) {
+      setVisited(new Set());
+      setEndless(false);
+    }
   }
 
   const handleVisit = useCallback((id: string) => {
     setVisited((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+  }, []);
+
+  const handleLoopRoute = useCallback(() => {
+    setVisited(new Set());
   }, []);
 
   useEffect(() => {
@@ -153,7 +161,13 @@ export function FlightShell() {
     content = (
       <>
         <FlightCanvas visited={visited} onVisit={handleVisit} />
-        <FlightHud visited={visited} close={close} />
+        <FlightHud
+          visited={visited}
+          close={close}
+          endless={endless}
+          onEndlessChange={setEndless}
+          onLoopRoute={handleLoopRoute}
+        />
       </>
     );
   }

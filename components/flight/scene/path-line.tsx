@@ -4,15 +4,10 @@ import { useMemo } from "react";
 import * as THREE from "three";
 import { Line } from "@react-three/drei";
 import type { FlightWaypoint } from "@/lib/flight/waypoints";
-import { resolveCssColor } from "./colors";
+import { FLIGHT_SCENE } from "./world";
 
 /** Glowing CatmullRom spline strung through the waypoints. */
 export function PathLine({ waypoints }: { waypoints: FlightWaypoint[] }) {
-  const color = useMemo(
-    () => resolveCssColor("var(--brand-secondary)", "#5ad1d6"),
-    [],
-  );
-
   const points = useMemo(() => {
     if (waypoints.length < 2) return [];
     const curve = new THREE.CatmullRomCurve3(
@@ -27,12 +22,21 @@ export function PathLine({ waypoints }: { waypoints: FlightWaypoint[] }) {
   if (points.length === 0) return null;
 
   return (
-    <Line
-      points={points}
-      color={color}
-      lineWidth={2}
-      transparent
-      opacity={0.65}
-    />
+    <>
+      <Line
+        points={points}
+        color={FLIGHT_SCENE.brandSecondary}
+        lineWidth={5}
+        transparent
+        opacity={0.22}
+      />
+      <Line
+        points={points}
+        color={FLIGHT_SCENE.brandSecondary}
+        lineWidth={2}
+        transparent
+        opacity={0.9}
+      />
+    </>
   );
 }

@@ -1,9 +1,9 @@
 export const FLIGHT_ACCENTS = [
-  "oklch(0.8 0.14 85)",
-  "var(--brand-secondary)",
-  "var(--brand)",
-  "oklch(0.76 0.13 155)",
-  "oklch(0.8 0.14 85)",
-  "var(--brand-secondary)",
-  "var(--brand)",
+  "#e8c547",
+  "#4ec8d4",
+  "#e07050",
+  "#5ecf8a",
+  "#e8c547",
+  "#4ec8d4",
+  "#e07050",
 ] as const;

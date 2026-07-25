@@ -33,20 +33,22 @@ function useOverlayNavigate(onClose: () => void) {
 function LandButton({
   onClick,
   className,
+  label = flightCopy.land,
 }: {
   onClick: () => void;
   className?: string;
+  label?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:border-brand hover:text-brand",
+        "rounded-full border border-border bg-background/80 px-4 py-2 text-sm font-medium transition-colors hover:border-brand hover:text-brand",
         className,
       )}
     >
-      {flightCopy.land}
+      {label}
     </button>
   );
 }
@@ -97,9 +99,13 @@ function StopCard({
 function CreditsCard({
   waypoints,
   onClose,
+  endless,
+  onKeepFlying,
 }: {
   waypoints: FlightWaypoint[];
   onClose: () => void;
+  endless: boolean;
+  onKeepFlying: () => void;
 }) {
   const navigate = useOverlayNavigate(onClose);
   return (
@@ -129,13 +135,16 @@ function CreditsCard({
           ))}
         </ul>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
+          {endless ? (
+            <LandButton onClick={onKeepFlying} label={flightCopy.keepFlying} />
+          ) : null}
           <LinkButton href="#contact" onClick={navigate("#contact")}>
             {flightCopy.contact}
           </LinkButton>
           <LinkButton href="/resume" variant="outline" onClick={navigate("/resume")}>
             {flightCopy.resume}
           </LinkButton>
-          <LandButton onClick={onClose} />
+          <LandButton onClick={onClose} label={flightCopy.cancel} />
         </div>
       </div>
     </div>
@@ -145,9 +154,15 @@ function CreditsCard({
 export function FlightHud({
   visited,
   close,
+  endless,
+  onEndlessChange,
+  onLoopRoute,
 }: {
   visited: Set<string>;
   close: () => void;
+  endless: boolean;
+  onEndlessChange: (value: boolean) => void;
+  onLoopRoute: () => void;
 }) {
   const waypoints = useMemo(() => buildFlightWaypoints(), []);
   const total = waypoints.length;
@@ -175,21 +190,49 @@ export function FlightHud({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
+  // Endless mode: finish the loop, then silently restart the route.
+  useEffect(() => {
+    if (!endless || !complete) return;
+    onLoopRoute();
+  }, [endless, complete, onLoopRoute]);
+
+  const showCredits = complete && !endless;
+
   return (
     <div className="pointer-events-none absolute inset-0">
-      <div className="pointer-events-auto absolute inset-x-0 top-0 flex items-center justify-between p-4 sm:p-6">
-        <div className="flex items-baseline gap-3">
+      <div className="pointer-events-auto absolute inset-x-0 top-0 flex items-center justify-between gap-3 p-4 sm:p-6">
+        <div className="flex min-w-0 flex-wrap items-baseline gap-3">
           <h2 id="flight-title" className="font-heading text-xl font-bold">
             {flightCopy.title}
           </h2>
           <span className="font-mono text-xs text-muted-foreground">
             {flightCopy.progress(visited.size, total)}
           </span>
+          {endless ? (
+            <span className="rounded-full border border-brand-secondary/40 bg-brand-secondary/10 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-brand-secondary">
+              {flightCopy.endlessHint}
+            </span>
+          ) : null}
         </div>
-        <LandButton onClick={close} />
+        <div className="flex shrink-0 items-center gap-2">
+          <button
+            type="button"
+            aria-pressed={endless}
+            onClick={() => onEndlessChange(!endless)}
+            className={cn(
+              "rounded-full border px-3 py-2 text-xs font-medium transition-colors sm:text-sm",
+              endless
+                ? "border-brand-secondary/50 bg-brand-secondary/15 text-brand-secondary"
+                : "border-border bg-background/80 text-muted-foreground hover:border-brand/40 hover:text-foreground",
+            )}
+          >
+            {endless ? flightCopy.endlessOn : flightCopy.endlessOff}
+          </button>
+          <LandButton onClick={close} label={flightCopy.cancel} />
+        </div>
       </div>
 
-      {sideStop && !complete && (
+      {sideStop && !showCredits && (
         <div className="absolute inset-y-0 right-4 flex items-center sm:right-6">
           <StopCard waypoint={sideStop} label={sideLabel} />
         </div>
@@ -204,7 +247,17 @@ export function FlightHud({
         {flightCopy.controlsHint}
       </p>
 
-      {complete && <CreditsCard waypoints={waypoints} onClose={close} />}
+      {showCredits && (
+        <CreditsCard
+          waypoints={waypoints}
+          onClose={close}
+          endless={endless}
+          onKeepFlying={() => {
+            onEndlessChange(true);
+            onLoopRoute();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -220,7 +273,7 @@ export function DesktopOnlyPanel({ onClose }: { onClose: () => void }) {
           {flightCopy.desktopOnly}
         </p>
         <div className="mt-6">
-          <LandButton onClick={onClose} />
+          <LandButton onClick={onClose} label={flightCopy.cancel} />
         </div>
       </div>
     </div>
@@ -268,7 +321,7 @@ export function ReducedMotionRouteList({ onClose }: { onClose: () => void }) {
           <LinkButton href="/resume" variant="outline" onClick={navigate("/resume")}>
             {flightCopy.resume}
           </LinkButton>
-          <LandButton onClick={onClose} />
+          <LandButton onClick={onClose} label={flightCopy.cancel} />
         </div>
       </div>
     </div>

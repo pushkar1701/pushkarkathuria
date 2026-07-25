@@ -1,13 +1,12 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { FlightWaypoint } from "@/lib/flight/waypoints";
-import { resolveCssColor } from "./colors";
 
-const VISITED_INTENSITY = 0.35;
-const IDLE_INTENSITY = 0.8;
+const VISITED_INTENSITY = 0.45;
+const IDLE_INTENSITY = 1.1;
 
 function Beacon({
   waypoint,
@@ -19,10 +18,7 @@ function Beacon({
   isNext: boolean;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const color = useMemo(
-    () => resolveCssColor(waypoint.accent, "#ffffff"),
-    [waypoint.accent],
-  );
+  const color = waypoint.accent;
 
   useFrame(({ clock }) => {
     if (document.hidden) return;

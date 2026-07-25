@@ -1,37 +1,132 @@
 "use client";
 
-/* eslint-disable react-hooks/immutability -- R3F's useThree().scene is a
- * live three.js Scene that background/fog are meant to be assigned onto
- * imperatively; it is not React-managed state. */
+/* eslint-disable react-hooks/immutability -- R3F scene background/fog are
+ * assigned imperatively on the live three.js Scene. */
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { resolveCssColor } from "./colors";
 
-/** Sky/fog/ground + lighting. No shadows (perf budget). */
+/** Hardcoded site-matched palette - CSS vars are unreliable inside WebGL. */
+export const FLIGHT_SCENE = {
+  sky: "#0c0b14",
+  skyHi: "#16132a",
+  ground: "#12101c",
+  groundAccent: "#1a1730",
+  fog: "#0c0b14",
+  brand: "#e07050",
+  brandSecondary: "#4ec8d4",
+  star: "#d8d4ec",
+  grid: "#2a2640",
+} as const;
+
+/** Deterministic star field so render stays pure. */
+function buildStarPositions(count: number) {
+  const positions = new Float32Array(count * 3);
+  let seed = 0xc0ffee;
+  const rand = () => {
+    seed = (seed * 16807) % 2147483647;
+    return (seed - 1) / 2147483646;
+  };
+  for (let i = 0; i < count; i += 1) {
+    const r = 80 + rand() * 220;
+    const theta = rand() * Math.PI * 2;
+    const phi = Math.acos(2 * rand() - 1);
+    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+    positions[i * 3 + 1] = Math.abs(r * Math.cos(phi)) + 8;
+    positions[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+  }
+  return positions;
+}
+
+const STAR_POSITIONS = buildStarPositions(900);
+
+/** Dark night sky, fog, ground grid, and soft brand glows. */
 export function World() {
-  const { scene } = useThree();
-  const sky = useMemo(() => resolveCssColor("var(--background)", "#101018"), []);
-  const ground = useMemo(() => resolveCssColor("var(--card)", "#1a1a24"), []);
+  const { scene, gl } = useThree();
 
   useEffect(() => {
-    scene.background = new THREE.Color(sky);
-    scene.fog = new THREE.Fog(sky, 45, 170);
+    gl.setClearColor(FLIGHT_SCENE.sky, 1);
+    scene.background = new THREE.Color(FLIGHT_SCENE.sky);
+    scene.fog = new THREE.FogExp2(FLIGHT_SCENE.fog, 0.012);
     return () => {
       scene.background = null;
       scene.fog = null;
     };
-  }, [scene, sky]);
+  }, [scene, gl]);
 
   return (
     <>
-      <hemisphereLight args={["#5b6fa8", "#0a0a10", 0.65]} />
-      <directionalLight position={[24, 32, 14]} intensity={1.05} color="#ffe2b8" />
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -9, 0]}>
-        <planeGeometry args={[600, 600]} />
-        <meshStandardMaterial color={ground} roughness={1} metalness={0} />
+      <hemisphereLight
+        args={[FLIGHT_SCENE.skyHi, FLIGHT_SCENE.ground, 0.55]}
+      />
+      <directionalLight
+        position={[18, 28, 10]}
+        intensity={0.55}
+        color="#c8b8ff"
+      />
+      <pointLight
+        position={[-20, 12, -10]}
+        intensity={18}
+        distance={80}
+        color={FLIGHT_SCENE.brand}
+      />
+      <pointLight
+        position={[24, 10, 16]}
+        intensity={14}
+        distance={70}
+        color={FLIGHT_SCENE.brandSecondary}
+      />
+
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -9.02, 0]}>
+        <circleGeometry args={[280, 64]} />
+        <meshStandardMaterial
+          color={FLIGHT_SCENE.ground}
+          roughness={1}
+          metalness={0}
+        />
       </mesh>
+
+      <gridHelper
+        args={[240, 48, FLIGHT_SCENE.grid, FLIGHT_SCENE.grid]}
+        position={[0, -8.95, 0]}
+      />
+
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -8.9, 0]}>
+        <ringGeometry args={[40, 120, 64]} />
+        <meshBasicMaterial
+          color={FLIGHT_SCENE.brand}
+          transparent
+          opacity={0.04}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -8.88, 0]}>
+        <ringGeometry args={[80, 180, 64]} />
+        <meshBasicMaterial
+          color={FLIGHT_SCENE.brandSecondary}
+          transparent
+          opacity={0.03}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      <points>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            args={[STAR_POSITIONS, 3]}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          color={FLIGHT_SCENE.star}
+          size={0.55}
+          sizeAttenuation
+          transparent
+          opacity={0.85}
+          depthWrite={false}
+        />
+      </points>
     </>
   );
 }

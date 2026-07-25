@@ -180,15 +180,27 @@ export function Plane({ keyState, waypoints, visited, onVisit }: PlaneProps) {
     <group ref={groupRef} position={initial.position.toArray()}>
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <coneGeometry args={[0.55, 2.4, 8]} />
-        <meshStandardMaterial color="#e7e8f0" metalness={0.3} roughness={0.4} />
+        <meshStandardMaterial
+          color="#f0ece4"
+          emissive="#e07050"
+          emissiveIntensity={0.25}
+          metalness={0.35}
+          roughness={0.35}
+        />
       </mesh>
       <mesh position={[0, -0.05, 0.15]}>
         <boxGeometry args={[3.2, 0.12, 0.7]} />
-        <meshStandardMaterial color="#c7cbd8" metalness={0.2} roughness={0.5} />
+        <meshStandardMaterial
+          color="#4ec8d4"
+          emissive="#4ec8d4"
+          emissiveIntensity={0.35}
+          metalness={0.2}
+          roughness={0.45}
+        />
       </mesh>
       <mesh position={[0, 0.35, 1]}>
         <boxGeometry args={[0.1, 0.7, 0.5]} />
-        <meshStandardMaterial color="#c7cbd8" metalness={0.2} roughness={0.5} />
+        <meshStandardMaterial color="#f0ece4" metalness={0.2} roughness={0.5} />
       </mesh>
     </group>
   );

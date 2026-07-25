@@ -1,10 +1,14 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { flightCopy } from "@/content/flight";
 import { useFlight } from "./flight-provider";
+import {
+  DesktopOnlyPanel,
+  FlightHud,
+  ReducedMotionRouteList,
+} from "./flight-hud";
 
 const FlightCanvas = dynamic(() => import("./flight-canvas"), {
   ssr: false,
@@ -15,21 +19,12 @@ const FlightCanvas = dynamic(() => import("./flight-canvas"), {
   ),
 });
 
-function LandButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="rounded-full border border-border bg-background px-4 py-2 text-sm font-medium transition-colors hover:border-brand hover:text-brand"
-    >
-      {flightCopy.land}
-    </button>
-  );
-}
-
 export function FlightShell() {
   const { close, isOpen } = useFlight();
-  const [useFallback, setUseFallback] = useState<boolean | null>(null);
+  // null = not yet determined; default to the safe (no-WebGL) fallback
+  // path until we've checked, matching the reduced-motion route list.
+  const [coarsePointer, setCoarsePointer] = useState<boolean | null>(null);
+  const [reduceMotion, setReduceMotion] = useState<boolean | null>(null);
   const [visited, setVisited] = useState<Set<string>>(() => new Set());
 
   // Reset progress each time the overlay opens (adjust state while
@@ -57,25 +52,43 @@ export function FlightShell() {
   useEffect(() => {
     if (!isOpen) return;
 
-    const coarsePointer = window.matchMedia("(pointer: coarse)");
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    );
-    const updateFallback = () =>
-      setUseFallback(coarsePointer.matches || reducedMotion.matches);
+    const coarse = window.matchMedia("(pointer: coarse)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateGates = () => {
+      setCoarsePointer(coarse.matches);
+      setReduceMotion(reduced.matches);
+    };
 
-    updateFallback();
-    coarsePointer.addEventListener("change", updateFallback);
-    reducedMotion.addEventListener("change", updateFallback);
+    updateGates();
+    coarse.addEventListener("change", updateGates);
+    reduced.addEventListener("change", updateGates);
 
     return () => {
-      coarsePointer.removeEventListener("change", updateFallback);
-      reducedMotion.removeEventListener("change", updateFallback);
-      setUseFallback(null);
+      coarse.removeEventListener("change", updateGates);
+      reduced.removeEventListener("change", updateGates);
+      setCoarsePointer(null);
+      setReduceMotion(null);
     };
   }, [isOpen]);
 
   if (!isOpen) return null;
+
+  let content: ReactNode;
+  if (coarsePointer) {
+    content = <DesktopOnlyPanel onClose={close} />;
+  } else if (coarsePointer === false && reduceMotion) {
+    content = <ReducedMotionRouteList onClose={close} />;
+  } else if (coarsePointer === false && reduceMotion === false) {
+    content = (
+      <>
+        <FlightCanvas visited={visited} onVisit={handleVisit} />
+        <FlightHud visited={visited} close={close} />
+      </>
+    );
+  } else {
+    // Gates not yet determined - render the static, WebGL-free fallback.
+    content = <ReducedMotionRouteList onClose={close} />;
+  }
 
   return createPortal(
     <div
@@ -84,34 +97,7 @@ export function FlightShell() {
       aria-labelledby="flight-title"
       className="fixed inset-0 z-[80] bg-background/95"
     >
-      {useFallback === false ? (
-        <>
-          <FlightCanvas visited={visited} onVisit={handleVisit} />
-          <div className="absolute inset-x-0 top-0 flex items-center justify-between p-4 sm:p-6">
-            <h2 id="flight-title" className="font-heading text-xl font-bold">
-              {flightCopy.title}
-            </h2>
-            <LandButton onClick={close} />
-          </div>
-        </>
-      ) : (
-        <div className="grid h-full place-items-center p-6">
-          <div className="max-w-md rounded-2xl border border-border bg-card p-6 text-center shadow-xl">
-            <h2
-              id="flight-title"
-              className="font-heading text-2xl font-bold"
-            >
-              {flightCopy.title}
-            </h2>
-            <p className="mt-3 text-sm text-muted-foreground">
-              {flightCopy.desktopOnly}
-            </p>
-            <div className="mt-6">
-              <LandButton onClick={close} />
-            </div>
-          </div>
-        </div>
-      )}
+      {content}
     </div>,
     document.body,
   );

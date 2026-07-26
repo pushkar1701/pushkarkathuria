@@ -1,11 +1,11 @@
-import { experience, projects } from "@/content/site";
+import { experience, projects, skills } from "@/content/site";
 import { FLIGHT_ACCENTS } from "@/lib/flight/accents";
 
 export type Vec3 = [number, number, number];
 
 export type LandmarkDef = {
   id: string;
-  kind: "company" | "project" | "contact" | "resume" | "secret";
+  kind: "company" | "project" | "contact" | "resume" | "secret" | "skill";
   title: string;
   subtitle?: string;
   body?: string;
@@ -49,7 +49,111 @@ export const SPAWN: { position: Vec3; lookYaw: number } = {
   lookYaw: 0,
 };
 
-export const WORLD_FALL_Y = -20;
+/** Leave staging when beyond this XZ distance from world origin. */
+export const PLATFORM_RADIUS = 48;
+
+export const WORLD_FALL_Y = -80;
+
+export type GalaxyPlanetDef = {
+  id: string;
+  position: Vec3;
+  radius: number;
+  /** Color key resolved from sky theme in the scene */
+  colorFrom: "brand" | "brandSecondary" | "custom";
+  customColor?: string;
+  ring?: boolean;
+  ringColorFrom?: "brand" | "brandSecondary" | "custom";
+  customRingColor?: string;
+};
+
+/** Distant worlds — visual + solid obstacles in open space. */
+export const GALAXY_PLANETS: GalaxyPlanetDef[] = [
+  {
+    id: "planet-coral",
+    position: [-85, 38, -70],
+    radius: 12,
+    colorFrom: "brand",
+    ring: true,
+    ringColorFrom: "brandSecondary",
+  },
+  {
+    id: "planet-cyan",
+    position: [95, 28, -40],
+    radius: 8,
+    colorFrom: "brandSecondary",
+  },
+  {
+    id: "planet-violet",
+    position: [30, 50, -120],
+    radius: 16,
+    colorFrom: "custom",
+    customColor: "#c9a0ff",
+    ring: true,
+    ringColorFrom: "custom",
+    customRingColor: "#ffe08a",
+  },
+];
+
+export type SectionBannerDef = {
+  id: string;
+  title: string;
+  subtitle: string;
+  position: Vec3;
+  yaw: number;
+  accent: string;
+};
+
+/** Tall flags that label each district on the staging island. */
+export const SECTION_BANNERS: SectionBannerDef[] = [
+  {
+    id: "banner-companies",
+    title: "Companies",
+    subtitle: "Career beacons",
+    position: [-10, 0, -3],
+    yaw: 0.25,
+    accent: "#ff7a52",
+  },
+  {
+    id: "banner-projects",
+    title: "Projects",
+    subtitle: "Featured builds",
+    position: [20, 0, 4],
+    yaw: -0.7,
+    accent: "#5cefff",
+  },
+  {
+    id: "banner-technologies",
+    title: "Technologies",
+    subtitle: "What I build with",
+    position: [-22, 0, 2],
+    yaw: 0.9,
+    accent: "#4dff9a",
+  },
+  {
+    id: "banner-contact",
+    title: "Contact",
+    subtitle: "Say hello",
+    position: [-24, 0, 16],
+    yaw: 0.4,
+    accent: "#4ec8d4",
+  },
+  {
+    id: "banner-resume",
+    title: "Resume",
+    subtitle: "Full CV",
+    position: [10, 0, 18],
+    yaw: -0.35,
+    accent: "#e07050",
+  },
+  {
+    id: "banner-playground",
+    title: "Playground",
+    subtitle: "Crates · bounce pads",
+    position: [2, 0, 10],
+    yaw: 0,
+    accent: "#ffe08a",
+  },
+];
 
 /** Authored playground layout — code-first island. */
 export function buildPlaygroundLayout() {
@@ -88,9 +192,31 @@ export function buildPlaygroundLayout() {
     } satisfies LandmarkDef;
   });
 
+  // Technologies plaza — curated skill boxes
+  const techPicks = [
+    ...skills.frontend.slice(0, 5),
+    ...skills.visualization.slice(0, 2),
+    ...skills.tools.slice(0, 3),
+  ];
+  const skillLandmarks = techPicks.map((name, i) => {
+    const col = i % 5;
+    const row = Math.floor(i / 5);
+    const position: Vec3 = [-26 + col * 2.4, 2.6, -2 + row * 3.2];
+    return {
+      id: `skill-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      kind: "skill" as const,
+      title: name,
+      subtitle: "Technology",
+      body: "A tool I use to ship product UI.",
+      accent: FLIGHT_ACCENTS[(i + 1) % FLIGHT_ACCENTS.length],
+      position,
+    } satisfies LandmarkDef;
+  });
+
   const landmarks: LandmarkDef[] = [
     ...companies,
     ...projectLandmarks,
+    ...skillLandmarks,
     {
       id: "pad-contact",
       kind: "contact",

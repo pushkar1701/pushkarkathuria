@@ -39,6 +39,8 @@ type FlightWorldStore = {
   registerSmash: () => void;
   respawnToken: number;
   respawn: () => void;
+  farFromPlatform: boolean;
+  setFarFromPlatform: (value: boolean) => void;
   muted: boolean;
   toggleMute: () => void;
   mapOpen: boolean;
@@ -118,6 +120,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
   const [collected, setCollected] = useState<Set<string>>(() => new Set());
   const [smashed, setSmashed] = useState(0);
   const [respawnToken, setRespawnToken] = useState(0);
+  const [farFromPlatform, setFarFromPlatform] = useState(false);
   const [muted, setMuted] = useState(() => getFlightMuted());
   const [mapOpen, setMapOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
@@ -224,6 +227,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
   const respawn = useCallback(() => {
     setRespawnToken((n) => n + 1);
     setNearId(null);
+    setFarFromPlatform(false);
     setHasRespawned(true);
     playSfx("ui");
     applyUnlocks({
@@ -263,6 +267,8 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
       registerSmash,
       respawnToken,
       respawn,
+      farFromPlatform,
+      setFarFromPlatform,
       muted,
       toggleMute,
       mapOpen,
@@ -286,6 +292,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
       registerSmash,
       respawnToken,
       respawn,
+      farFromPlatform,
       muted,
       toggleMute,
       mapOpen,

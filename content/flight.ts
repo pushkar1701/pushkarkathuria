@@ -6,6 +6,10 @@ export const flightCopy = {
   land: "Land",
   cancel: "Cancel",
   respawn: "Respawn",
+  returnPlatform: "Return to platform",
+  deepSpaceTitle: "Deep space",
+  deepSpaceBody:
+    "You’ve left the staging island. Keep roaming the galaxy, or head back whenever you like.",
   skyLabel: "Sky",
   craftLabel: "Craft",
   ctaHero: "Take Career Flight",

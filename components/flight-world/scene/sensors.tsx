@@ -45,6 +45,8 @@ function LandmarkBeacon({ landmark }: { landmark: LandmarkDef }) {
           <octahedronGeometry args={[1.1, 0]} />
         ) : landmark.kind === "project" ? (
           <boxGeometry args={[1.6, 1.6, 1.6]} />
+        ) : landmark.kind === "skill" ? (
+          <dodecahedronGeometry args={[1.05, 0]} />
         ) : (
           <icosahedronGeometry args={[1.15, 0]} />
         )}

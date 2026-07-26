@@ -1,20 +1,55 @@
 "use client";
 
+/* eslint-disable react-hooks/immutability -- R3F scene background/fog are
+ * assigned imperatively on the live three.js Scene. */
+
+import { useEffect } from "react";
+import { useThree } from "@react-three/fiber";
+import * as THREE from "three";
 import type { SkyTheme } from "@/lib/flight/loadout";
 
 export function WorldLights({ sky }: { sky: SkyTheme }) {
+  const { scene, gl } = useThree();
+
+  useEffect(() => {
+    gl.setClearColor(sky.sky, 1);
+    scene.background = new THREE.Color(sky.sky);
+    scene.fog = new THREE.FogExp2(sky.fog, 0.0065);
+    return () => {
+      scene.background = null;
+      scene.fog = null;
+    };
+  }, [scene, gl, sky]);
+
   return (
     <>
-      <color attach="background" args={[sky.skyHi]} />
-      <fog attach="fog" args={[sky.skyHi, 70, 160]} />
-      <ambientLight intensity={0.55} />
-      <hemisphereLight args={["#c8d0ff", sky.ground, 0.85]} />
-      <directionalLight position={[20, 40, 10]} intensity={1.35} color="#fff5e8" />
-      <pointLight position={[-15, 12, 10]} intensity={50} distance={80} color={sky.brand} />
+      <ambientLight intensity={0.35} />
+      <hemisphereLight args={[sky.skyHi, sky.ground, 0.7]} />
+      <directionalLight position={[30, 50, 20]} intensity={0.9} color="#fff0d8" />
       <pointLight
-        position={[25, 10, -10]}
+        position={[-20, 18, 8]}
+        intensity={70}
+        distance={100}
+        color={sky.brand}
+      />
+      <pointLight
+        position={[28, 14, -12]}
+        intensity={55}
+        distance={90}
+        color={sky.brandSecondary}
+      />
+      <pointLight
+        position={[0, 25, -35]}
         intensity={40}
-        distance={70}
+        distance={120}
+        color={sky.star}
+      />
+      <spotLight
+        position={[0, 40, 20]}
+        angle={0.55}
+        penumbra={0.6}
+        intensity={30}
+        distance={80}
         color={sky.brandSecondary}
       />
     </>

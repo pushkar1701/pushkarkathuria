@@ -53,7 +53,7 @@ function FlightAppInner() {
     setOptionsOpen,
   } = useFlightWorld();
 
-  const [skyId, setSkyId] = useState<SkyId>("midnight");
+  const [skyId, setSkyId] = useState<SkyId>("neon");
   const [craftId, setCraftId] = useState<CraftId>("rocket");
 
   useEffect(() => {

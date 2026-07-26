@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { flightCopy } from "@/content/flight";
 import { ACHIEVEMENTS } from "@/lib/flight-world/achievements";
 import { cn } from "@/lib/utils";
 import { useFlightWorld } from "./store";
@@ -14,6 +15,7 @@ export function FlightHud() {
     collected,
     nearLandmark,
     respawn,
+    farFromPlatform,
     muted,
     toggleMute,
     mapOpen,
@@ -37,18 +39,40 @@ export function FlightHud() {
           </p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
-          <HudBtn onClick={() => setMapOpen(!mapOpen)}>{mapOpen ? "Map on" : "Map"}</HudBtn>
+          <HudBtn onClick={() => setMapOpen(!mapOpen)}>
+            {mapOpen ? "Map on" : "Map"}
+          </HudBtn>
           <HudBtn onClick={toggleMute}>{muted ? "Unmute" : "Mute"}</HudBtn>
-          <HudBtn onClick={respawn}>Respawn</HudBtn>
+          <HudBtn onClick={respawn}>{flightCopy.respawn}</HudBtn>
           <HudBtn onClick={() => setOptionsOpen(true)}>Options</HudBtn>
           <HudBtn onClick={() => router.push("/")}>Leave</HudBtn>
         </div>
       </div>
 
-      {nearLandmark ? (
+      {farFromPlatform ? (
+        <div className="pointer-events-auto absolute inset-x-0 bottom-16 z-20 flex justify-center px-4">
+          <div className="max-w-md rounded-2xl border border-brand/40 bg-card/90 p-4 text-center shadow-xl backdrop-blur-md sm:p-5">
+            <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-brand">
+              {flightCopy.deepSpaceTitle}
+            </p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {flightCopy.deepSpaceBody}
+            </p>
+            <button
+              type="button"
+              onClick={respawn}
+              className="mt-4 rounded-full border border-brand/50 bg-brand/20 px-5 py-2 text-sm font-medium text-brand transition-colors hover:bg-brand/30"
+            >
+              {flightCopy.returnPlatform}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {nearLandmark && !farFromPlatform ? (
         <div className="pointer-events-auto absolute top-1/2 right-4 w-60 -translate-y-1/2 rounded-2xl border border-border bg-card/90 p-4 shadow-xl backdrop-blur-md sm:right-6">
           <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-            {nearLandmark.kind}
+            {kindLabel(nearLandmark.kind)}
           </p>
           <p
             className="mt-1 font-heading text-lg font-semibold"
@@ -80,7 +104,8 @@ export function FlightHud() {
       ) : null}
 
       <p className="absolute inset-x-0 bottom-5 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
-        WASD thrust/turn · Shift boost · Space jump · R respawn · M map · L mute · Esc options
+        WASD thrust/turn · Shift boost · Space jump · R return · M map · L mute · Esc
+        options
       </p>
 
       {mapOpen ? <MiniMap /> : null}
@@ -96,7 +121,9 @@ export function FlightHud() {
                 onClick={toggleMute}
               >
                 <span>Audio</span>
-                <span className="text-muted-foreground">{muted ? "Off" : "On"}</span>
+                <span className="text-muted-foreground">
+                  {muted ? "Off" : "On"}
+                </span>
               </button>
               <button
                 type="button"
@@ -110,7 +137,10 @@ export function FlightHud() {
                 <p className="font-medium">Achievements</p>
                 <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-xs text-muted-foreground">
                   {ACHIEVEMENTS.map((a) => (
-                    <li key={a.id} className={cn(unlocked.has(a.id) && "text-brand")}>
+                    <li
+                      key={a.id}
+                      className={cn(unlocked.has(a.id) && "text-brand")}
+                    >
                       {unlocked.has(a.id) ? "✓" : "·"} {a.title} — {a.description}
                     </li>
                   ))}
@@ -131,6 +161,25 @@ export function FlightHud() {
       ) : null}
     </div>
   );
+}
+
+function kindLabel(kind: string) {
+  switch (kind) {
+    case "company":
+      return "Company";
+    case "project":
+      return "Project";
+    case "skill":
+      return "Technology";
+    case "contact":
+      return "Contact";
+    case "resume":
+      return "Resume";
+    case "secret":
+      return "Secret";
+    default:
+      return kind;
+  }
 }
 
 function HudBtn({

@@ -24,7 +24,7 @@ Turn Career Flight into a Bruno Simon–inspired **free-roam rocket district**: 
 ## Entry & gates
 
 - **Desktop entry:** Hero CTA, Experience CTA, optional footer plane, optional `fly` chord → hangar → Launch.
-- **Mobile:** CTAs and footer trigger are not shown (`md+` and/or `pointer: fine`). Coarse-pointer / reduced-motion fallbacks remain if the overlay is opened somehow.
+- **Mobile:** CTAs and footer trigger are not shown unless the viewport is `md+` **and** the pointer is fine (match existing coarse-pointer gate). Coarse-pointer / reduced-motion fallbacks remain if the overlay is opened somehow.
 - **Hangar:** Existing sky + craft pick → Launch into open district (not a corridor).
 - **Exit:** Cancel / Esc; body scroll unlock unchanged. Contact/Resume landmarks close overlay then navigate (same pattern as today’s credits CTAs).
 
@@ -35,7 +35,7 @@ Open career district — **no Catmull path line, no magnet “next stop”, no a
 | Zone | Content |
 | --- | --- |
 | Company cluster | 7 job beacons from `experience` — near → role/dates card |
-| Projects plaza | Featured project pads from `projects` — card + optional external link |
+| Projects plaza | Pads for projects with `featured: true` — card + optional external link |
 | Contact pad | Close overlay → `#contact` |
 | Resume hangar | Close overlay → `/resume` |
 | Atmosphere | Low platforms, billboards, deco rocks, soft rings/coins |

@@ -9,48 +9,42 @@ import {
   isMovementKey,
   resetKeyState,
 } from "@/lib/flight/controls";
-import type { ArcadeRing, ArcadeRock } from "@/lib/flight/arcade";
 import type { CraftDef, SkyTheme } from "@/lib/flight/loadout";
-import { nextWaypoint } from "@/lib/flight/path";
-import { buildFlightWaypoints } from "@/lib/flight/waypoints";
-import { ArcadeField } from "./scene/arcade-field";
+import type { FlightWorld } from "@/lib/flight/world";
+import { District } from "./scene/district";
+import { Landmarks } from "./scene/landmarks";
 import { getInitialCameraPosition, Plane } from "./scene/plane";
-import { PathLine } from "./scene/path-line";
-import { Waypoints } from "./scene/waypoints";
 import { World } from "./scene/world";
 
 export type FlightCanvasProps = {
-  visited: Set<string>;
-  onVisit: (id: string) => void;
+  world: FlightWorld;
   sky: SkyTheme;
   craft: CraftDef;
-  rings: ArcadeRing[];
-  rocks: ArcadeRock[];
-  collectedRingIds: Set<string>;
-  onRing: (id: string) => void;
-  onHit: () => void;
+  discovered: Set<string>;
+  collectedIds: Set<string>;
+  onDiscover: (id: string) => void;
+  onCollect: (id: string) => void;
+  onNear: (id: string | null) => void;
+  nearId: string | null;
+  respawnToken: number;
 };
 
 export default function FlightCanvas({
-  visited,
-  onVisit,
+  world,
   sky,
   craft,
-  rings,
-  rocks,
-  collectedRingIds,
-  onRing,
-  onHit,
+  discovered,
+  collectedIds,
+  onDiscover,
+  onCollect,
+  onNear,
+  nearId,
+  respawnToken,
 }: FlightCanvasProps) {
   const keyState = useMemo(() => createKeyState(), []);
-  const waypoints = useMemo(() => buildFlightWaypoints(), []);
   const cameraPosition = useMemo(
-    () => getInitialCameraPosition(waypoints),
-    [waypoints],
-  );
-  const nextId = useMemo(
-    () => nextWaypoint(waypoints, visited)?.id ?? null,
-    [waypoints, visited],
+    () => getInitialCameraPosition(world),
+    [world],
   );
 
   useEffect(() => {
@@ -85,25 +79,22 @@ export default function FlightCanvas({
       shadows={false}
     >
       <World sky={sky} />
-      <PathLine waypoints={waypoints} color={sky.brandSecondary} />
-      <ArcadeField
-        rings={rings}
-        rocks={rocks}
-        collectedRingIds={collectedRingIds}
-        sky={sky}
+      <District world={world} sky={sky} collectedIds={collectedIds} />
+      <Landmarks
+        landmarks={world.landmarks}
+        discovered={discovered}
+        nearId={nearId}
       />
-      <Waypoints waypoints={waypoints} visited={visited} nextId={nextId} />
       <Plane
         keyState={keyState}
-        waypoints={waypoints}
-        visited={visited}
-        onVisit={onVisit}
+        world={world}
         craft={craft}
-        rings={rings}
-        rocks={rocks}
-        collectedRingIds={collectedRingIds}
-        onRing={onRing}
-        onHit={onHit}
+        discovered={discovered}
+        collectedIds={collectedIds}
+        onDiscover={onDiscover}
+        onCollect={onCollect}
+        onNear={onNear}
+        respawnToken={respawnToken}
       />
     </Canvas>
   );

@@ -7,12 +7,11 @@ import { ExperienceSection } from "@/components/sections/experience";
 import { SkillsSection } from "@/components/sections/skills";
 import { RecognitionSection } from "@/components/sections/recognition";
 import { ContactSection } from "@/components/sections/contact";
-import { FlightProvider } from "@/components/flight/flight-provider";
-import { FlightShell } from "@/components/flight/flight-shell";
+import { FlightChordListener } from "@/components/flight/flight-chord";
 
 export default function HomePage() {
   return (
-    <FlightProvider>
+    <>
       <Header />
       <main>
         <HeroSection />
@@ -24,7 +23,7 @@ export default function HomePage() {
         <ContactSection />
       </main>
       <Footer />
-      <FlightShell />
-    </FlightProvider>
+      <FlightChordListener />
+    </>
   );
 }

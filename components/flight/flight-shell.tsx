@@ -12,15 +12,13 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
-import { flightArcade } from "@/content/flight";
-import { buildArcadeProps } from "@/lib/flight/arcade";
 import {
   getCraft,
   getSkyTheme,
   type CraftId,
   type SkyId,
 } from "@/lib/flight/loadout";
-import { buildFlightWaypoints } from "@/lib/flight/waypoints";
+import { buildFlightWorld } from "@/lib/flight/world";
 import { useFlight } from "./flight-provider";
 import { FlightHangar } from "./flight-hangar";
 import {
@@ -71,25 +69,18 @@ export function FlightShell() {
 
   const [phase, setPhase] = useState<Phase>("hangar");
   const [skyId, setSkyId] = useState<SkyId>("midnight");
-  const [craftId, setCraftId] = useState<CraftId>("dart");
-  const [visited, setVisited] = useState<Set<string>>(() => new Set());
-  const [collectedRings, setCollectedRings] = useState<Set<string>>(
+  const [craftId, setCraftId] = useState<CraftId>("rocket");
+  const [discovered, setDiscovered] = useState<Set<string>>(() => new Set());
+  const [collectedIds, setCollectedIds] = useState<Set<string>>(
     () => new Set(),
   );
-  const [score, setScore] = useState(0);
-  const [combo, setCombo] = useState(1);
-  const [endless, setEndless] = useState(false);
-  const [loop, setLoop] = useState(0);
+  const [nearId, setNearId] = useState<string | null>(null);
+  const [respawnToken, setRespawnToken] = useState(0);
 
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  const waypoints = useMemo(() => buildFlightWaypoints(), []);
-  const density = endless ? 1 + Math.min(2, loop * 0.35) : 1;
-  const arcade = useMemo(
-    () => buildArcadeProps(waypoints, density),
-    [waypoints, density],
-  );
+  const world = useMemo(() => buildFlightWorld(), []);
   const sky = getSkyTheme(skyId);
   const craft = getCraft(craftId);
 
@@ -98,53 +89,30 @@ export function FlightShell() {
     setPrevIsOpen(isOpen);
     if (isOpen) {
       setPhase("hangar");
-      setVisited(new Set());
-      setCollectedRings(new Set());
-      setScore(0);
-      setCombo(1);
-      setEndless(false);
-      setLoop(0);
+      setDiscovered(new Set());
+      setCollectedIds(new Set());
+      setNearId(null);
+      setRespawnToken(0);
     }
   }
 
-  const comboRef = useRef(1);
-  useEffect(() => {
-    comboRef.current = combo;
-  }, [combo]);
-
-  const handleVisit = useCallback((id: string) => {
-    setVisited((prev) => {
+  const handleDiscover = useCallback((id: string) => {
+    setDiscovered((prev) => {
       if (prev.has(id)) return prev;
       return new Set(prev).add(id);
     });
-    const mult = comboRef.current;
-    setScore((s) => s + Math.round(flightArcade.companyPoints * mult));
-    setCombo((c) => Math.min(flightArcade.comboMax, c + flightArcade.comboStep));
   }, []);
 
-  const handleRing = useCallback((id: string) => {
-    setCollectedRings((prev) => {
+  const handleCollect = useCallback((id: string) => {
+    setCollectedIds((prev) => {
       if (prev.has(id)) return prev;
-      const next = new Set(prev).add(id);
-      const mult = comboRef.current;
-      setScore((s) => s + Math.round(flightArcade.ringPoints * mult));
-      setCombo((c) =>
-        Math.min(flightArcade.comboMax, c + flightArcade.comboStep),
-      );
-      return next;
+      return new Set(prev).add(id);
     });
   }, []);
 
-  const handleHit = useCallback(() => {
-    setScore((s) => Math.max(0, s - flightArcade.hitPenalty));
-    setCombo(1);
-  }, []);
-
-  const handleLoopRoute = useCallback(() => {
-    setVisited(new Set());
-    setCollectedRings(new Set());
-    setLoop((n) => n + 1);
-    setCombo(1);
+  const handleRespawn = useCallback(() => {
+    setRespawnToken((n) => n + 1);
+    setNearId(null);
   }, []);
 
   useEffect(() => {
@@ -174,6 +142,25 @@ export function FlightShell() {
         ?.focus();
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || phase !== "playing") return;
+    function onKey(event: KeyboardEvent) {
+      if (event.code !== "KeyR") return;
+      if (
+        event.target instanceof HTMLElement &&
+        (event.target.tagName === "INPUT" ||
+          event.target.tagName === "TEXTAREA" ||
+          event.target.isContentEditable)
+      ) {
+        return;
+      }
+      event.preventDefault();
+      handleRespawn();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, phase, handleRespawn]);
 
   const handleDialogKeyDown = useCallback(
     (event: ReactKeyboardEvent<HTMLDivElement>) => {
@@ -224,24 +211,24 @@ export function FlightShell() {
     content = (
       <>
         <FlightCanvas
-          visited={visited}
-          onVisit={handleVisit}
+          world={world}
           sky={sky}
           craft={craft}
-          rings={arcade.rings}
-          rocks={arcade.rocks}
-          collectedRingIds={collectedRings}
-          onRing={handleRing}
-          onHit={handleHit}
+          discovered={discovered}
+          collectedIds={collectedIds}
+          onDiscover={handleDiscover}
+          onCollect={handleCollect}
+          onNear={setNearId}
+          nearId={nearId}
+          respawnToken={respawnToken}
         />
         <FlightHud
-          visited={visited}
+          world={world}
+          discovered={discovered}
+          collectedCount={collectedIds.size}
+          nearId={nearId}
           close={close}
-          endless={endless}
-          onEndlessChange={setEndless}
-          onLoopRoute={handleLoopRoute}
-          score={score}
-          combo={combo}
+          onRespawn={handleRespawn}
         />
       </>
     );

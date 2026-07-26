@@ -3,10 +3,10 @@ import { describe, it } from "node:test";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FooterTrigger } from "./footer-trigger";
-import { advanceFlightChord } from "./flight-provider";
+import { advanceFlightChord } from "./flight-chord";
 
 describe("FooterTrigger", () => {
-  it("renders nothing outside FlightProvider", () => {
+  it("renders nothing on the server (mobile-safe default)", () => {
     assert.equal(renderToStaticMarkup(createElement(FooterTrigger)), "");
   });
 });

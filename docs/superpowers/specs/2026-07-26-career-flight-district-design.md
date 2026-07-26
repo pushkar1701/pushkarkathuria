@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-26  
 **Site:** pushkarkathuria.com  
-**Status:** Approved (pending user review of written spec)  
+**Status:** Implemented  
 **Supersedes (for flight loop):** guided path + arcade corridor win loop in `2026-07-26-career-flight-arcade-design.md`  
 **Keeps:** hangar loadout, overlay shell, Hero/Experience entry (desktop)
 

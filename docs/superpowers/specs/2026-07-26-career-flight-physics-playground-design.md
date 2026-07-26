@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-26  
 **Site:** pushkarkathuria.com  
-**Status:** Approved (pending user review of written spec)  
+**Status:** Implemented (v1 playground — iterate density/GLTF/music in-place)  
 **Vision reference:** [bruno-simon.com](https://bruno-simon.com/)  
 **Supersedes:** free-roam kinematic district overlay (`2026-07-26-career-flight-district-design.md`) and arcade corridor loop for the primary flight experience
 

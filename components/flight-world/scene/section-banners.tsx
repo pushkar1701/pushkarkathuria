@@ -19,17 +19,19 @@ function SectionFlag({
   yaw: number;
   accent: string;
 }) {
-  const flagRef = useRef<THREE.Mesh>(null);
+  const clothRef = useRef<THREE.Group>(null);
+  const phase = position[0] * 0.37 + position[2] * 0.19;
+
   useFrame(({ clock }) => {
-    if (!flagRef.current) return;
-    // Soft flutter
-    flagRef.current.rotation.y =
-      Math.sin(clock.elapsedTime * 2.2 + position[0]) * 0.06;
+    if (!clothRef.current) return;
+    const t = clock.elapsedTime;
+    // Soft hinge wave from the pole — whole cloth moves together
+    clothRef.current.rotation.y = Math.sin(t * 1.6 + phase) * 0.12;
+    clothRef.current.rotation.z = Math.sin(t * 2.1 + phase * 1.3) * 0.04;
   });
 
   return (
     <group position={position} rotation={[0, yaw, 0]}>
-      {/* Pole */}
       <mesh position={[0, 2.4, 0]} castShadow>
         <cylinderGeometry args={[0.07, 0.09, 4.8, 8]} />
         <meshStandardMaterial
@@ -47,44 +49,43 @@ function SectionFlag({
         />
       </mesh>
 
-      {/* Flag board */}
-      <group position={[1.75, 3.7, 0]}>
-        <mesh ref={flagRef} castShadow>
-          <boxGeometry args={[3.4, 1.55, 0.08]} />
-          <meshStandardMaterial
-            color={accent}
-            emissive={accent}
-            emissiveIntensity={0.35}
-            roughness={0.45}
-            metalness={0.15}
-          />
-        </mesh>
-        {/* Backing plate for contrast */}
-        <mesh position={[0, 0, -0.02]}>
-          <boxGeometry args={[3.5, 1.65, 0.04]} />
-          <meshStandardMaterial color="#0c1018" roughness={0.9} />
-        </mesh>
-        <Text
-          position={[0, 0.22, 0.06]}
-          fontSize={0.42}
-          color="#0a0c12"
-          anchorX="center"
-          anchorY="middle"
-          maxWidth={3}
-          fontWeight={700}
-        >
-          {title}
-        </Text>
-        <Text
-          position={[0, -0.32, 0.06]}
-          fontSize={0.2}
-          color="#1a1e28"
-          anchorX="center"
-          anchorY="middle"
-          maxWidth={3.1}
-        >
-          {subtitle}
-        </Text>
+      {/* Hinge at the pole; flag extends +X */}
+      <group position={[0.12, 3.7, 0]}>
+        <group ref={clothRef}>
+          <mesh position={[1.7, 0, 0]} castShadow>
+            <boxGeometry args={[3.4, 1.55, 0.06]} />
+            <meshStandardMaterial
+              color={accent}
+              emissive={accent}
+              emissiveIntensity={0.3}
+              roughness={0.5}
+              metalness={0.12}
+            />
+          </mesh>
+          <Text
+            position={[1.7, 0.22, 0.05]}
+            fontSize={0.42}
+            color="#0a0c12"
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={3}
+            fontWeight={700}
+            depthOffset={-1}
+          >
+            {title}
+          </Text>
+          <Text
+            position={[1.7, -0.32, 0.05]}
+            fontSize={0.2}
+            color="#1a1e28"
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={3.1}
+            depthOffset={-1}
+          >
+            {subtitle}
+          </Text>
+        </group>
       </group>
     </group>
   );

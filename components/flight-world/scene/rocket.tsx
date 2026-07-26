@@ -4,7 +4,11 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
-import { RigidBody, type RapierRigidBody } from "@react-three/rapier";
+import {
+  BallCollider,
+  RigidBody,
+  type RapierRigidBody,
+} from "@react-three/rapier";
 import * as THREE from "three";
 import {
   applyKeyEvent,
@@ -27,6 +31,7 @@ const BOOST_SPEED = 12;
 const OPEN_SPACE_BONUS = 6;
 const TURN_RATE = 2.4;
 const JUMP = 12;
+const DIVE = -11;
 const CHASE_DISTANCE = 14;
 const CAMERA_DAMPING = 3.2;
 const HARD_VOID = 280;
@@ -119,6 +124,7 @@ export function Rocket({ craft }: { craft: CraftDef }) {
   const jumpCool = useRef(0);
   const lastRespawn = useRef(respawnToken);
   const spaceHeld = useRef(false);
+  const diveHeld = useRef(false);
   const farRef = useRef(false);
   const trailCursor = useRef(0);
   const emitAcc = useRef(0);
@@ -146,16 +152,24 @@ export function Rocket({ craft }: { craft: CraftDef }) {
         e.preventDefault();
         spaceHeld.current = true;
       }
+      if (e.code === "ControlLeft" || e.code === "ControlRight" || e.code === "KeyC") {
+        e.preventDefault();
+        diveHeld.current = true;
+      }
       if (isMovementKey(e.code)) e.preventDefault();
       applyKeyEvent(keys, e, true);
     }
     function up(e: KeyboardEvent) {
       if (e.code === "Space") spaceHeld.current = false;
+      if (e.code === "ControlLeft" || e.code === "ControlRight" || e.code === "KeyC") {
+        diveHeld.current = false;
+      }
       applyKeyEvent(keys, e, false);
     }
     function blur() {
       resetKeyState(keys);
       spaceHeld.current = false;
+      diveHeld.current = false;
     }
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
@@ -284,7 +298,18 @@ export function Rocket({ craft }: { craft: CraftDef }) {
     if (spaceHeld.current && now > jumpCool.current) {
       jumpCool.current = now + 0.55;
       const current = rb.linvel();
-      rb.setLinvel({ x: current.x, y: JUMP + (far ? 4 : 0), z: current.z }, true);
+      rb.setLinvel(
+        { x: current.x, y: JUMP + (far ? 4 : 0), z: current.z },
+        true,
+      );
+      playSfx("boost");
+    } else if (diveHeld.current && now > jumpCool.current) {
+      jumpCool.current = now + 0.55;
+      const current = rb.linvel();
+      rb.setLinvel(
+        { x: current.x, y: DIVE + (far ? -3 : 0), z: current.z },
+        true,
+      );
       playSfx("boost");
     }
 
@@ -320,7 +345,7 @@ export function Rocket({ craft }: { craft: CraftDef }) {
       <RigidBody
         ref={body}
         position={SPAWN.position}
-        colliders="ball"
+        colliders={false}
         linearDamping={0.2}
         angularDamping={1}
         canSleep={false}
@@ -330,28 +355,158 @@ export function Rocket({ craft }: { craft: CraftDef }) {
         gravityScale={farFromPlatform ? 0.18 : 1}
         enabledRotations={[false, true, false]}
       >
-        <group rotation={[Math.PI / 2, 0, 0]}>
-          <mesh castShadow>
-            <capsuleGeometry args={[0.45, 1.6, 4, 10]} />
-            <meshStandardMaterial
-              color={craft.body}
-              emissive={craft.accent}
-              emissiveIntensity={0.45}
-              metalness={0.45}
-              roughness={0.3}
-            />
-          </mesh>
-          <mesh position={[0, 1.2, 0]}>
-            <coneGeometry args={[0.4, 0.8, 8]} />
-            <meshStandardMaterial
-              color={craft.trail}
-              emissive={craft.trail}
-              emissiveIntensity={1.4}
-            />
-          </mesh>
+        {/* Fixed collider — visuals must not drive auto-bounds (causes vanishing). */}
+        <BallCollider args={[0.85]} />
+        <group frustumCulled={false}>
+          <CraftMesh craft={craft} />
         </group>
       </RigidBody>
       <BoostSmokeTrail puffs={puffs} color={craft.trail} />
     </>
+  );
+}
+
+/** Distinct silhouettes — nose along local −Z to match heading. */
+function CraftMesh({ craft }: { craft: CraftDef }) {
+  if (craft.kind === "rocket") {
+    return (
+      <group>
+        <mesh castShadow frustumCulled={false} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.42, 0.52, 2.4, 12]} />
+          <meshStandardMaterial
+            color={craft.body}
+            emissive={craft.accent}
+            emissiveIntensity={0.35}
+            metalness={0.45}
+            roughness={0.3}
+          />
+        </mesh>
+        <mesh
+          castShadow
+          frustumCulled={false}
+          position={[0, 0, -1.4]}
+          rotation={[Math.PI / 2, 0, 0]}
+        >
+          <coneGeometry args={[0.52, 0.85, 10]} />
+          <meshStandardMaterial
+            color={craft.accent}
+            emissive={craft.accent}
+            emissiveIntensity={0.55}
+          />
+        </mesh>
+        {[0, 1, 2, 3].map((i) => (
+          <group
+            key={i}
+            position={[0, 0, 0.95]}
+            rotation={[0, (i * Math.PI) / 2, 0]}
+          >
+            <mesh castShadow frustumCulled={false} position={[0.55, 0, 0]}>
+              <boxGeometry args={[0.55, 0.08, 0.7]} />
+              <meshStandardMaterial
+                color={craft.accent}
+                emissive={craft.accent}
+                emissiveIntensity={0.4}
+              />
+            </mesh>
+          </group>
+        ))}
+        <mesh frustumCulled={false} position={[0, 0, 1.35]}>
+          <coneGeometry args={[0.32, 0.65, 8]} />
+          <meshStandardMaterial
+            color={craft.trail}
+            emissive={craft.trail}
+            emissiveIntensity={1.4}
+          />
+        </mesh>
+      </group>
+    );
+  }
+
+  if (craft.kind === "scout") {
+    return (
+      <group>
+        <mesh castShadow frustumCulled={false}>
+          <sphereGeometry args={[0.78, 18, 14]} />
+          <meshStandardMaterial
+            color={craft.body}
+            emissive={craft.accent}
+            emissiveIntensity={0.3}
+            metalness={0.55}
+            roughness={0.22}
+          />
+        </mesh>
+        <mesh frustumCulled={false} rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[1.25, 0.11, 8, 36]} />
+          <meshStandardMaterial
+            color={craft.accent}
+            emissive={craft.accent}
+            emissiveIntensity={0.9}
+            metalness={0.4}
+            roughness={0.25}
+          />
+        </mesh>
+        <mesh frustumCulled={false} position={[0, 0.15, -0.55]}>
+          <boxGeometry args={[0.55, 0.22, 0.35]} />
+          <meshStandardMaterial
+            color="#1a2030"
+            emissive={craft.trail}
+            emissiveIntensity={0.6}
+            metalness={0.3}
+            roughness={0.4}
+          />
+        </mesh>
+        <mesh frustumCulled={false} position={[0, -0.55, 0.2]}>
+          <cylinderGeometry args={[0.18, 0.28, 0.35, 8]} />
+          <meshStandardMaterial
+            color={craft.trail}
+            emissive={craft.trail}
+            emissiveIntensity={1.2}
+          />
+        </mesh>
+      </group>
+    );
+  }
+
+  // Dart — flat delta wing, tip along −Z
+  return (
+    <group>
+      <mesh castShadow frustumCulled={false} rotation={[Math.PI / 2, 0, 0]}>
+        <coneGeometry args={[0.5, 2.35, 3]} />
+        <meshStandardMaterial
+          color={craft.body}
+          emissive={craft.accent}
+          emissiveIntensity={0.3}
+          metalness={0.35}
+          roughness={0.35}
+          flatShading
+        />
+      </mesh>
+      <mesh castShadow frustumCulled={false} position={[0, -0.02, 0.15]}>
+        <boxGeometry args={[3.4, 0.1, 0.85]} />
+        <meshStandardMaterial
+          color={craft.accent}
+          emissive={craft.accent}
+          emissiveIntensity={0.4}
+          metalness={0.25}
+          roughness={0.4}
+        />
+      </mesh>
+      <mesh castShadow frustumCulled={false} position={[0, 0.38, 0.75]}>
+        <boxGeometry args={[0.08, 0.65, 0.55]} />
+        <meshStandardMaterial
+          color={craft.body}
+          metalness={0.25}
+          roughness={0.45}
+        />
+      </mesh>
+      <mesh frustumCulled={false} position={[0, 0, 1.2]}>
+        <boxGeometry args={[0.35, 0.12, 0.4]} />
+        <meshStandardMaterial
+          color={craft.trail}
+          emissive={craft.trail}
+          emissiveIntensity={1.3}
+        />
+      </mesh>
+    </group>
   );
 }

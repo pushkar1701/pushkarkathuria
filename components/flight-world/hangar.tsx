@@ -11,6 +11,60 @@ import {
 } from "@/lib/flight/loadout";
 import { cn } from "@/lib/utils";
 
+function CraftPreview({ craftId }: { craftId: CraftId }) {
+  const craft = getCraft(craftId);
+  if (craft.kind === "rocket") {
+    return (
+      <div className="relative mx-auto flex h-14 w-12 items-end justify-center">
+        <div
+          className="h-10 w-4 rounded-t-full rounded-b-sm"
+          style={{ backgroundColor: craft.body }}
+        />
+        <div
+          className="absolute bottom-0 h-3 w-6 rounded-b-md"
+          style={{ backgroundColor: craft.accent }}
+        />
+        <div
+          className="absolute -bottom-1.5 h-4 w-1.5 rounded-full opacity-80 blur-[1px]"
+          style={{ backgroundColor: craft.trail }}
+        />
+      </div>
+    );
+  }
+  if (craft.kind === "scout") {
+    return (
+      <div className="relative mx-auto flex h-14 w-14 items-center justify-center">
+        <div
+          className="h-2 w-12 rounded-full"
+          style={{ backgroundColor: craft.accent }}
+        />
+        <div
+          className="absolute h-6 w-6 rounded-full border-[3px]"
+          style={{
+            backgroundColor: craft.body,
+            borderColor: craft.accent,
+          }}
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="relative mx-auto flex h-14 w-16 items-center justify-center">
+      <div
+        className="h-1.5 w-14 rounded-sm"
+        style={{ backgroundColor: craft.accent }}
+      />
+      <div
+        className="absolute h-8 w-4"
+        style={{
+          backgroundColor: craft.body,
+          clipPath: "polygon(50% 0%, 100% 100%, 0% 100%)",
+        }}
+      />
+    </div>
+  );
+}
+
 export function FlightWorldHangar({
   skyId,
   craftId,
@@ -87,11 +141,8 @@ export function FlightWorldHangar({
                   : "border-white/10 bg-white/5 hover:border-white/25",
               )}
             >
-              <span
-                className="mx-auto mb-2 block size-8 rounded-full"
-                style={{ backgroundColor: c.accent }}
-              />
-              {c.label}
+              <CraftPreview craftId={c.id} />
+              <span className="mt-1 block">{c.label}</span>
             </button>
           ))}
         </div>

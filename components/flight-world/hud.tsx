@@ -104,8 +104,8 @@ export function FlightHud() {
       ) : null}
 
       <p className="absolute inset-x-0 bottom-5 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
-        WASD thrust/turn · Shift boost · Space jump · R return · M map · L mute · Esc
-        options
+        WASD thrust/turn · Shift boost · Space jump · Ctrl dive · R return · M map · L
+        mute · Esc options
       </p>
 
       {mapOpen ? <MiniMap /> : null}

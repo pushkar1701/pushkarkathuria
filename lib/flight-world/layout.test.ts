@@ -3,39 +3,64 @@ import { describe, it } from "node:test";
 import { ACHIEVEMENTS } from "./achievements";
 import {
   buildPlaygroundLayout,
+  CIRCUIT_BAYS,
   GALAXY_HARD_VOID,
   GALAXY_PLANETS,
   SECTION_BANNERS,
 } from "./layout";
 
 describe("buildPlaygroundLayout", () => {
-  it("includes companies, projects, skills, pads, secrets, toys", () => {
+  it("builds a circuit with bay-hosted landmarks", () => {
     const layout = buildPlaygroundLayout();
     assert.equal(
-      layout.landmarks.filter((l) => l.kind === "company").length,
+      layout.landmarks.filter((l) => l.kind === "company" && l.bayId === "companies")
+        .length,
       7,
     );
-    assert.ok(layout.landmarks.some((l) => l.kind === "project"));
+    assert.equal(
+      layout.landmarks.filter((l) => l.kind === "project").length,
+      7,
+    );
     assert.ok(layout.landmarks.some((l) => l.kind === "skill"));
+    assert.ok(layout.landmarks.some((l) => l.kind === "hobby"));
+    assert.equal(
+      layout.landmarks.filter((l) => l.kind === "achievement").length,
+      4,
+    );
     assert.ok(layout.landmarks.some((l) => l.kind === "contact"));
     assert.ok(layout.landmarks.some((l) => l.kind === "resume"));
     assert.equal(
       layout.landmarks.filter((l) => l.kind === "secret").length,
-      3,
+      2,
     );
     assert.ok(layout.crates.length >= 8);
     assert.ok(layout.coins.length >= 5);
     assert.ok(layout.bouncePads.length >= 2);
+    assert.equal(layout.bays.length, CIRCUIT_BAYS.length);
+  });
+});
+
+describe("CIRCUIT_BAYS", () => {
+  it("exposes the pit-stop exits", () => {
+    const ids = CIRCUIT_BAYS.map((b) => b.id);
+    assert.ok(ids.includes("companies"));
+    assert.ok(ids.includes("technologies"));
+    assert.ok(ids.includes("projects"));
+    assert.ok(ids.includes("achievements"));
+    assert.ok(ids.includes("hobbies"));
+    assert.ok(ids.includes("contact"));
+    assert.ok(ids.includes("playground"));
   });
 });
 
 describe("SECTION_BANNERS", () => {
-  it("labels the main island districts", () => {
+  it("labels exit mouths from circuit bays", () => {
     const titles = SECTION_BANNERS.map((b) => b.title);
     assert.ok(titles.includes("Companies"));
     assert.ok(titles.includes("Projects"));
     assert.ok(titles.includes("Technologies"));
-    assert.ok(SECTION_BANNERS.length >= 5);
+    assert.ok(titles.includes("Hobbies"));
+    assert.equal(SECTION_BANNERS.length, CIRCUIT_BAYS.length);
   });
 });
 

@@ -1,17 +1,27 @@
-import { experience, projects, skills } from "@/content/site";
+import { experience, hobbies, projects, skills, careerAchievements } from "@/content/site";
 import { FLIGHT_ACCENTS } from "@/lib/flight/accents";
 
 export type Vec3 = [number, number, number];
 
 export type LandmarkDef = {
   id: string;
-  kind: "company" | "project" | "contact" | "resume" | "secret" | "skill";
+  kind:
+    | "company"
+    | "project"
+    | "contact"
+    | "resume"
+    | "secret"
+    | "skill"
+    | "hobby"
+    | "achievement";
   title: string;
   subtitle?: string;
   body?: string;
   accent: string;
   position: Vec3;
   href?: string;
+  /** Which pit-stop bay this landmark belongs to (if any). */
+  bayId?: BayId;
 };
 
 export type CrateDef = {
@@ -44,19 +54,79 @@ function shortCompany(name: string) {
 }
 
 export const SPAWN: { position: Vec3; lookYaw: number } = {
-  position: [0, 6, 28],
-  // 0 ⇒ world forward (0,0,-1) toward the island center
+  // South straight of the oval, facing into the circuit
+  position: [0, 4.2, 26],
   lookYaw: 0,
 };
 
 /** Leave staging when beyond this XZ distance from world origin. */
-export const PLATFORM_RADIUS = 48;
+export const PLATFORM_RADIUS = 58;
 
 /** Soft floor before auto-return. */
 export const WORLD_FALL_Y = -320;
 
 /** Outer roam limit — beyond this the craft respawns. */
 export const GALAXY_HARD_VOID = 980;
+
+/** Oval track centerline radii (x, z). */
+export const CIRCUIT = {
+  a: 30,
+  b: 22,
+  trackHalfWidth: 4.2,
+} as const;
+
+export type BayId =
+  | "companies"
+  | "technologies"
+  | "projects"
+  | "achievements"
+  | "hobbies"
+  | "contact"
+  | "playground";
+
+export type BayDef = {
+  id: BayId;
+  title: string;
+  subtitle: string;
+  blurb: string;
+  accent: string;
+  /** Exit mouth on the loop (flag + gate). */
+  gate: Vec3;
+  yaw: number;
+  /** Bay pad center (sensor). */
+  center: Vec3;
+  padSize: Vec3;
+  sensorRadius: number;
+};
+
+/** Point on the oval: θ=0 at +Z (south), CCW toward +X (east). */
+export function circuitPoint(theta: number, radiusScale = 1): Vec3 {
+  const a = CIRCUIT.a * radiusScale;
+  const b = CIRCUIT.b * radiusScale;
+  return [Math.sin(theta) * a, 0, Math.cos(theta) * b];
+}
+
+function outwardYaw(theta: number): number {
+  // Face away from origin along the radial in XZ
+  const [x, , z] = circuitPoint(theta);
+  return Math.atan2(x, z);
+}
+
+function bayGrid(
+  origin: Vec3,
+  count: number,
+  cols: number,
+  gapX: number,
+  gapZ: number,
+  y = 1.85,
+): Vec3[] {
+  return Array.from({ length: count }, (_, i) => {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    const ox = ((cols - 1) * gapX) / 2;
+    return [origin[0] + col * gapX - ox, y, origin[2] + row * gapZ] as Vec3;
+  });
+}
 
 export type GalaxyPlanetDef = {
   id: string;
@@ -283,121 +353,216 @@ export type SectionBannerDef = {
   accent: string;
 };
 
-/** Tall flags that label each district on the staging island. */
-export const SECTION_BANNERS: SectionBannerDef[] = [
+/**
+ * Pit-stop exits around the oval (θ=0 south, CCW).
+ * Bays sit outside the track; flags mark the exit mouths.
+ */
+export const CIRCUIT_BAYS: BayDef[] = [
   {
-    id: "banner-companies",
+    id: "companies",
     title: "Companies",
     subtitle: "Career beacons",
-    position: [-10, 0, -3],
-    yaw: 0.25,
+    blurb: "Take this exit to tour every company stop on the career path.",
     accent: "#ff7a52",
+    gate: [...circuitPoint((3 * Math.PI) / 2, 1.02)] as Vec3,
+    yaw: outwardYaw((3 * Math.PI) / 2),
+    center: [...circuitPoint((3 * Math.PI) / 2, 1.48)] as Vec3,
+    padSize: [18, 0.55, 14],
+    sensorRadius: 9,
   },
   {
-    id: "banner-projects",
-    title: "Projects",
-    subtitle: "Featured builds",
-    position: [20, 0, 4],
-    yaw: -0.7,
-    accent: "#5cefff",
-  },
-  {
-    id: "banner-technologies",
+    id: "technologies",
     title: "Technologies",
     subtitle: "What I build with",
-    position: [-22, 0, 2],
-    yaw: 0.9,
+    blurb: "Skills and tools — roll the bay to discover each stack piece.",
     accent: "#4dff9a",
+    gate: [...circuitPoint(3.9, 1.02)] as Vec3,
+    yaw: outwardYaw(3.9),
+    center: [...circuitPoint(3.9, 1.45)] as Vec3,
+    padSize: [16, 0.55, 12],
+    sensorRadius: 8,
   },
   {
-    id: "banner-contact",
-    title: "Contact",
-    subtitle: "Say hello",
-    position: [-24, 0, 16],
-    yaw: 0.4,
-    accent: "#4ec8d4",
+    id: "projects",
+    title: "Projects",
+    subtitle: "Featured builds",
+    blurb: "Featured product work — drive the pads for metrics and links.",
+    accent: "#5cefff",
+    gate: [...circuitPoint(Math.PI / 2, 1.02)] as Vec3,
+    yaw: outwardYaw(Math.PI / 2),
+    center: [...circuitPoint(Math.PI / 2, 1.45)] as Vec3,
+    padSize: [16, 0.55, 14],
+    sensorRadius: 8.5,
   },
   {
-    id: "banner-resume",
-    title: "Resume",
-    subtitle: "Full CV",
-    position: [10, 0, 18],
-    yaw: -0.35,
-    accent: "#e07050",
-  },
-  {
-    id: "banner-playground",
-    title: "Playground",
-    subtitle: "Crates · bounce pads",
-    position: [2, 0, 10],
-    yaw: 0,
+    id: "achievements",
+    title: "Achievements",
+    subtitle: "Recognition & milestones",
+    blurb: "Career highlights — awards, exams, and apps that shipped in the real world.",
     accent: "#ffe08a",
+    gate: [...circuitPoint(2.2, 1.02)] as Vec3,
+    yaw: outwardYaw(2.2),
+    center: [...circuitPoint(2.2, 1.42)] as Vec3,
+    padSize: [14, 0.55, 12],
+    sensorRadius: 8,
+  },
+  {
+    id: "hobbies",
+    title: "Hobbies",
+    subtitle: "Off the clock",
+    blurb: "Dancing, FIFA, football — and a side-quest for Bonafide Losers.",
+    accent: "#ff7ab8",
+    gate: [...circuitPoint(5.2, 1.02)] as Vec3,
+    yaw: outwardYaw(5.2),
+    center: [...circuitPoint(5.2, 1.45)] as Vec3,
+    padSize: [14, 0.55, 12],
+    sensorRadius: 8,
+  },
+  {
+    id: "contact",
+    title: "Contact",
+    subtitle: "Say hello · Resume",
+    blurb: "Leave the playground for contact or open the full CV.",
+    accent: "#4ec8d4",
+    gate: [...circuitPoint(0.55, 1.02)] as Vec3,
+    yaw: outwardYaw(0.55),
+    center: [...circuitPoint(0.55, 1.4)] as Vec3,
+    padSize: [12, 0.55, 10],
+    sensorRadius: 7,
+  },
+  {
+    id: "playground",
+    title: "Playground",
+    subtitle: "Crates · bounce · coins",
+    blurb: "Smash toys and grab coins — then merge back onto the loop.",
+    accent: "#e8c547",
+    gate: [...circuitPoint(Math.PI, 1.02)] as Vec3,
+    yaw: outwardYaw(Math.PI),
+    center: [...circuitPoint(Math.PI, 1.4)] as Vec3,
+    padSize: [16, 0.55, 14],
+    sensorRadius: 8.5,
   },
 ];
 
-/** Authored playground layout — code-first island. */
+/** Exit-mouth flags (same data the banners component renders). */
+export const SECTION_BANNERS: SectionBannerDef[] = CIRCUIT_BAYS.map((bay) => ({
+  id: `banner-${bay.id}`,
+  title: bay.title,
+  subtitle: `EXIT · ${bay.subtitle}`,
+  position: [bay.gate[0], 0, bay.gate[2]],
+  yaw: bay.yaw + Math.PI / 2,
+  accent: bay.accent,
+}));
+
+/** Authored playground layout — oval circuit + pit-stop bays. */
 export function buildPlaygroundLayout() {
-  const companies = [...experience].reverse().map((job, i) => {
-    const t = i / Math.max(1, experience.length - 1);
-    const angle = -1.0 + t * 2.0;
-    const r = 22;
-    // Drive-height beacons — readable without jumping
-    const position: Vec3 = [
-      Math.sin(angle) * r - 8,
+  const companiesBay = CIRCUIT_BAYS.find((b) => b.id === "companies")!;
+  const techBay = CIRCUIT_BAYS.find((b) => b.id === "technologies")!;
+  const projectsBay = CIRCUIT_BAYS.find((b) => b.id === "projects")!;
+  const achieveBay = CIRCUIT_BAYS.find((b) => b.id === "achievements")!;
+  const hobbiesBay = CIRCUIT_BAYS.find((b) => b.id === "hobbies")!;
+  const contactBay = CIRCUIT_BAYS.find((b) => b.id === "contact")!;
+  const playBay = CIRCUIT_BAYS.find((b) => b.id === "playground")!;
+
+  const companySlots = bayGrid(companiesBay.center, experience.length, 4, 3.2, 3.4);
+  const companies = [...experience].reverse().map((job, i) => ({
+    id: `company-${job.id}`,
+    kind: "company" as const,
+    title: shortCompany(job.company),
+    subtitle: job.role,
+    body: job.dates,
+    accent: FLIGHT_ACCENTS[i % FLIGHT_ACCENTS.length],
+    position: companySlots[i] ?? ([
+      companiesBay.center[0],
       1.85,
-      -Math.cos(angle) * r - 4,
-    ];
-    return {
-      id: `company-${job.id}`,
-      kind: "company" as const,
-      title: shortCompany(job.company),
-      subtitle: job.role,
-      body: job.dates,
-      accent: FLIGHT_ACCENTS[i % FLIGHT_ACCENTS.length],
-      position,
-    } satisfies LandmarkDef;
-  });
+      companiesBay.center[2],
+    ] as Vec3),
+    bayId: "companies" as const,
+  })) satisfies LandmarkDef[];
 
-  const featured = projects.filter((p) => p.featured);
-  const projectLandmarks = featured.map((project, i) => {
-    const position: Vec3 = [24 + (i % 2) * 6, 1.85, -6 + Math.floor(i / 2) * 7];
-    return {
-      id: `project-${project.slug}`,
-      kind: "project" as const,
-      title: project.title,
-      subtitle: project.company,
-      body: project.metric,
-      accent: FLIGHT_ACCENTS[(i + 3) % FLIGHT_ACCENTS.length],
-      position,
-      href: "url" in project ? project.url : undefined,
-    } satisfies LandmarkDef;
-  });
+  const projectSlots = bayGrid(
+    projectsBay.center,
+    projects.length,
+    3,
+    4.2,
+    3.8,
+  );
+  const projectLandmarks = projects.map((project, i) => ({
+    id: `project-${project.slug}`,
+    kind: "project" as const,
+    title: project.title,
+    subtitle: project.company,
+    body: project.metric,
+    accent: FLIGHT_ACCENTS[(i + 3) % FLIGHT_ACCENTS.length],
+    position: projectSlots[i]!,
+    href: "url" in project ? project.url : undefined,
+    bayId: "projects" as const,
+  })) satisfies LandmarkDef[];
 
-  // Technologies plaza — curated skill boxes
   const techPicks = [
     ...skills.frontend.slice(0, 5),
     ...skills.visualization.slice(0, 2),
     ...skills.tools.slice(0, 3),
   ];
-  const skillLandmarks = techPicks.map((name, i) => {
-    const col = i % 5;
-    const row = Math.floor(i / 5);
-    const position: Vec3 = [-26 + col * 2.4, 1.7, -2 + row * 3.2];
-    return {
-      id: `skill-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
-      kind: "skill" as const,
-      title: name,
-      subtitle: "Technology",
-      body: "A tool I use to ship product UI.",
-      accent: FLIGHT_ACCENTS[(i + 1) % FLIGHT_ACCENTS.length],
-      position,
-    } satisfies LandmarkDef;
-  });
+  const skillSlots = bayGrid(techBay.center, techPicks.length, 5, 2.6, 3.0, 1.7);
+  const skillLandmarks = techPicks.map((name, i) => ({
+    id: `skill-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+    kind: "skill" as const,
+    title: name,
+    subtitle: "Technology",
+    body: "A tool I use to ship product UI.",
+    accent: FLIGHT_ACCENTS[(i + 1) % FLIGHT_ACCENTS.length],
+    position: skillSlots[i]!,
+    bayId: "technologies" as const,
+  })) satisfies LandmarkDef[];
+
+  const achieveSlots = bayGrid(
+    achieveBay.center,
+    careerAchievements.length,
+    2,
+    4.5,
+    4,
+  );
+  const achievementLandmarks = careerAchievements.map((a, i) => ({
+    id: `career-${a.id}`,
+    kind: "achievement" as const,
+    title: a.title,
+    subtitle: a.subtitle,
+    body: a.body,
+    accent: FLIGHT_ACCENTS[(i + 4) % FLIGHT_ACCENTS.length],
+    position: achieveSlots[i]!,
+    bayId: "achievements" as const,
+  })) satisfies LandmarkDef[];
+
+  const hobbySlots = bayGrid(hobbiesBay.center, hobbies.length + 1, 2, 4.2, 3.8);
+  const hobbyLandmarks = hobbies.map((h, i) => ({
+    id: `hobby-${h.id}`,
+    kind: "hobby" as const,
+    title: h.title,
+    subtitle: h.subtitle,
+    body: h.body,
+    accent: FLIGHT_ACCENTS[(i + 2) % FLIGHT_ACCENTS.length],
+    position: hobbySlots[i]!,
+    bayId: "hobbies" as const,
+  })) satisfies LandmarkDef[];
 
   const landmarks: LandmarkDef[] = [
     ...companies,
     ...projectLandmarks,
     ...skillLandmarks,
+    ...achievementLandmarks,
+    ...hobbyLandmarks,
+    {
+      id: "hobby-bonafide",
+      kind: "hobby",
+      title: "Bonafide Losers",
+      subtitle: "Side quest",
+      body: "Five iOS puzzles under my own label.",
+      accent: "#5ecf8a",
+      position: hobbySlots[hobbies.length]!,
+      href: "https://bonafide-losers.vercel.app/apps",
+      bayId: "hobbies",
+    },
     {
       id: "pad-contact",
       kind: "contact",
@@ -405,8 +570,13 @@ export function buildPlaygroundLayout() {
       subtitle: "Say hello",
       body: "Leave the playground for the contact section.",
       accent: "#4ec8d4",
-      position: [-26, 1.85, 14],
+      position: [
+        contactBay.center[0] - 2.5,
+        1.85,
+        contactBay.center[2],
+      ],
       href: "/#contact",
+      bayId: "contact",
     },
     {
       id: "pad-resume",
@@ -415,8 +585,13 @@ export function buildPlaygroundLayout() {
       subtitle: "Full CV",
       body: "Open the resume page.",
       accent: "#e07050",
-      position: [12, 1.85, 22],
+      position: [
+        contactBay.center[0] + 2.5,
+        1.85,
+        contactBay.center[2],
+      ],
       href: "/resume",
+      bayId: "contact",
     },
     {
       id: "secret-fly",
@@ -425,7 +600,7 @@ export function buildPlaygroundLayout() {
       subtitle: "fly",
       body: "Type fly on the homepage anytime.",
       accent: "#e8c547",
-      position: [0, 2.5, -36],
+      position: [0, 1.6, 0],
     },
     {
       id: "secret-cave",
@@ -434,17 +609,7 @@ export function buildPlaygroundLayout() {
       subtitle: "Secret ledge",
       body: "You found the underside perch.",
       accent: "#5ecf8a",
-      position: [-6, -1.2, 2],
-    },
-    {
-      id: "secret-bonafide",
-      kind: "secret",
-      title: "Bonafide Losers",
-      subtitle: "Side projects",
-      body: "Five iOS puzzles under my own label.",
-      accent: "#5ecf8a",
-      position: [32, 4, 10],
-      href: "https://bonafide-losers.vercel.app/apps",
+      position: [0, -1.2, 8],
     },
   ];
 
@@ -452,7 +617,11 @@ export function buildPlaygroundLayout() {
   for (let i = 0; i < 12; i += 1) {
     crates.push({
       id: `crate-${i}`,
-      position: [-4 + (i % 4) * 1.4, 1.2 + Math.floor(i / 4) * 1.3, 8],
+      position: [
+        playBay.center[0] - 4 + (i % 4) * 1.4,
+        1.2 + Math.floor(i / 4) * 1.3,
+        playBay.center[2] - 2,
+      ],
       size: [1.1, 1.1, 1.1],
     });
   }
@@ -461,40 +630,47 @@ export function buildPlaygroundLayout() {
   for (let i = 0; i < 6; i += 1) {
     pins.push({
       id: `pin-${i}`,
-      position: [6 + (i % 3) * 1.2, 1.4, -2 - Math.floor(i / 3) * 1.2],
+      position: [
+        playBay.center[0] + 2 + (i % 3) * 1.2,
+        1.4,
+        playBay.center[2] + 2 - Math.floor(i / 3) * 1.2,
+      ],
       size: [0.55, 1.6, 0.55],
     });
   }
 
   const coins: CoinDef[] = [
-    { id: "coin-0", position: [0, 5, 16] },
-    { id: "coin-1", position: [-12, 6, 0] },
-    { id: "coin-2", position: [18, 5, -12] },
-    { id: "coin-3", position: [-20, 4, -10] },
-    { id: "coin-4", position: [8, 8, 4] },
-    { id: "coin-5", position: [0, 4, -28] },
-    { id: "coin-6", position: [28, 5, 4] },
-    { id: "coin-7", position: [-28, 5, 8] },
+    { id: "coin-0", position: [0, 3.5, 26] },
+    { id: "coin-1", position: [...circuitPoint(0.8, 1.0)].map((v, i) => (i === 1 ? 3.2 : v)) as Vec3 },
+    { id: "coin-2", position: [...circuitPoint(2.0, 1.0)].map((v, i) => (i === 1 ? 3.2 : v)) as Vec3 },
+    { id: "coin-3", position: [...circuitPoint(3.5, 1.0)].map((v, i) => (i === 1 ? 3.2 : v)) as Vec3 },
+    { id: "coin-4", position: [...circuitPoint(4.8, 1.0)].map((v, i) => (i === 1 ? 3.2 : v)) as Vec3 },
+    {
+      id: "coin-5",
+      position: [playBay.center[0], 4, playBay.center[2]],
+    },
+    {
+      id: "coin-6",
+      position: [companiesBay.center[0], 4, companiesBay.center[2]],
+    },
+    {
+      id: "coin-7",
+      position: [projectsBay.center[0], 4, projectsBay.center[2]],
+    },
   ];
 
   const bouncePads: BouncePadDef[] = [
     {
       id: "bounce-a",
-      position: [4, 0.4, 12],
+      position: [playBay.center[0] - 5, 0.4, playBay.center[2] + 3],
       size: [3, 0.4, 3],
       impulse: 18,
     },
     {
       id: "bounce-b",
-      position: [-14, 0.4, -8],
+      position: [playBay.center[0] + 5, 0.4, playBay.center[2] - 2],
       size: [3.5, 0.4, 3.5],
       impulse: 22,
-    },
-    {
-      id: "bounce-c",
-      position: [16, 0.4, 8],
-      size: [3, 0.4, 3],
-      impulse: 16,
     },
   ];
 
@@ -504,6 +680,7 @@ export function buildPlaygroundLayout() {
     pins,
     coins,
     bouncePads,
+    bays: CIRCUIT_BAYS,
     spawn: SPAWN,
   };
 }

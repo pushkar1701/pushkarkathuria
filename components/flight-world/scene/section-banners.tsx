@@ -60,33 +60,51 @@ function SectionFlag({
               emissiveIntensity={0.3}
               roughness={0.5}
               metalness={0.12}
+              side={THREE.DoubleSide}
             />
           </mesh>
-          <Text
-            position={[1.7, 0.22, 0.05]}
-            fontSize={0.42}
-            color="#0a0c12"
-            anchorX="center"
-            anchorY="middle"
-            maxWidth={3}
-            fontWeight={700}
-            depthOffset={-1}
-          >
-            {title}
-          </Text>
-          <Text
-            position={[1.7, -0.32, 0.05]}
-            fontSize={0.2}
-            color="#1a1e28"
-            anchorX="center"
-            anchorY="middle"
-            maxWidth={3.1}
-            depthOffset={-1}
-          >
-            {subtitle}
-          </Text>
+          <FlagFace title={title} subtitle={subtitle} side={1} />
+          <FlagFace title={title} subtitle={subtitle} side={-1} />
         </group>
       </group>
+    </group>
+  );
+}
+
+function FlagFace({
+  title,
+  subtitle,
+  side,
+}: {
+  title: string;
+  subtitle: string;
+  side: 1 | -1;
+}) {
+  return (
+    <group position={[1.7, 0, 0.05 * side]} rotation={[0, side === -1 ? Math.PI : 0, 0]}>
+      <Text
+        position={[0, 0.22, 0]}
+        fontSize={0.42}
+        color="#0a0c12"
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={3}
+        fontWeight={700}
+        depthOffset={-1}
+      >
+        {title}
+      </Text>
+      <Text
+        position={[0, -0.32, 0]}
+        fontSize={0.2}
+        color="#1a1e28"
+        anchorX="center"
+        anchorY="middle"
+        maxWidth={3.1}
+        depthOffset={-1}
+      >
+        {subtitle}
+      </Text>
     </group>
   );
 }

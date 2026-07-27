@@ -5,13 +5,61 @@ import { useFrame } from "@react-three/fiber";
 import { BallCollider, RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 import type { SkyTheme } from "@/lib/flight/loadout";
-import type { CoinDef, LandmarkDef } from "@/lib/flight-world/layout";
+import type {
+  BayDef,
+  CoinDef,
+  LandmarkDef,
+} from "@/lib/flight-world/layout";
 import { useFlightWorld } from "../store";
 
 function sensorRadius(kind: LandmarkDef["kind"]) {
   if (kind === "secret") return 1.5;
-  if (kind === "company" || kind === "project" || kind === "skill") return 2.75;
+  if (
+    kind === "company" ||
+    kind === "project" ||
+    kind === "skill" ||
+    kind === "hobby" ||
+    kind === "achievement"
+  ) {
+    return 2.6;
+  }
   return 2.4;
+}
+
+function BaySensor({ bay }: { bay: BayDef }) {
+  const { setActiveBayId, clearBayIf } = useFlightWorld();
+  const clearTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (clearTimer.current) clearTimeout(clearTimer.current);
+    };
+  }, []);
+
+  return (
+    <RigidBody
+      type="fixed"
+      position={[bay.center[0], 2, bay.center[2]]}
+      colliders={false}
+      sensor
+      onIntersectionEnter={() => {
+        if (clearTimer.current) {
+          clearTimeout(clearTimer.current);
+          clearTimer.current = null;
+        }
+        setActiveBayId(bay.id);
+      }}
+      onIntersectionExit={() => {
+        if (clearTimer.current) clearTimeout(clearTimer.current);
+        clearTimer.current = setTimeout(() => {
+          clearBayIf(bay.id);
+          clearTimer.current = null;
+        }, 2800);
+      }}
+    >
+      <BallCollider args={[bay.sensorRadius]} />
+    </RigidBody>
+  );
 }
 
 function LandmarkBeacon({ landmark }: { landmark: LandmarkDef }) {
@@ -56,7 +104,6 @@ function LandmarkBeacon({ landmark }: { landmark: LandmarkDef }) {
         setNearId(landmark.id);
       }}
       onIntersectionExit={() => {
-        // Keep the info card up briefly so gravity drop doesn't yank it away
         if (clearTimer.current) clearTimeout(clearTimer.current);
         clearTimer.current = setTimeout(() => {
           clearNearIf(landmark.id);
@@ -72,6 +119,10 @@ function LandmarkBeacon({ landmark }: { landmark: LandmarkDef }) {
           <boxGeometry args={[1.6, 1.6, 1.6]} />
         ) : landmark.kind === "skill" ? (
           <dodecahedronGeometry args={[1.05, 0]} />
+        ) : landmark.kind === "hobby" ? (
+          <torusGeometry args={[0.85, 0.28, 8, 16]} />
+        ) : landmark.kind === "achievement" ? (
+          <cylinderGeometry args={[0.9, 0.9, 0.35, 6]} />
         ) : landmark.kind === "company" ? (
           <boxGeometry args={[1.5, 1.5, 1.5]} />
         ) : (
@@ -130,6 +181,9 @@ export function Sensors({ sky }: { sky: SkyTheme }) {
   const { layout, collected, collect } = useFlightWorld();
   return (
     <group>
+      {layout.bays.map((bay) => (
+        <BaySensor key={bay.id} bay={bay} />
+      ))}
       {layout.landmarks.map((l) => (
         <LandmarkBeacon key={l.id} landmark={l} />
       ))}

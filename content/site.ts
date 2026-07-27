@@ -303,6 +303,55 @@ export const skills = {
   ],
 } as const;
 
+export const hobbies = [
+  {
+    id: "dancing",
+    title: "Dancing",
+    subtitle: "Move to the music",
+    body: "When the beat hits, I’m on the floor.",
+  },
+  {
+    id: "fifa",
+    title: "FIFA",
+    subtitle: "Controller in hand",
+    body: "Late-night matches, rivalries, and just one more game.",
+  },
+  {
+    id: "football",
+    title: "Football",
+    subtitle: "Manchester United",
+    body: "Die-hard Red Devil — glory, heartbreak, and never walking alone in spirit.",
+  },
+] as const;
+
+/** Real-world highlights shown in the Career Flight Achievements exit bay. */
+export const careerAchievements = [
+  {
+    id: "gate-2012",
+    title: "GATE 2012",
+    subtitle: "Cleared",
+    body: "89.56 percentile on GATE 2012.",
+  },
+  {
+    id: "play-store-50k",
+    title: "Play Store",
+    subtitle: "50K+ downloads",
+    body: "An Android app I built crossed 50,000 downloads before I took it down.",
+  },
+  {
+    id: "ios-five-live",
+    title: "App Store",
+    subtitle: "5 live iOS apps",
+    body: "Five puzzle apps shipping under Bonafide Losers — design through App Store release.",
+  },
+  {
+    id: "deloitte-awards",
+    title: "Deloitte awards",
+    subtitle: "Spot & Applause",
+    body: "Two Spot Awards and an Applause Award for delivery and leadership.",
+  },
+] as const;
+
 export const recognition = [
   {
     title: "Deloitte awards",

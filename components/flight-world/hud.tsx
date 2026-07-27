@@ -14,6 +14,7 @@ export function FlightHud() {
     discovered,
     collected,
     nearLandmark,
+    activeBay,
     respawn,
     farFromPlatform,
     muted,
@@ -27,6 +28,10 @@ export function FlightHud() {
     setQuality,
   } = useFlightWorld();
 
+  const bayItemCount = activeBay
+    ? layout.landmarks.filter((l) => l.bayId === activeBay.id).length
+    : 0;
+
   return (
     <div className="pointer-events-none absolute inset-0 z-10 text-foreground">
       <div className="pointer-events-auto absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4 sm:p-5">
@@ -34,7 +39,7 @@ export function FlightHud() {
           <h1 className="font-heading text-xl font-bold">Career Flight</h1>
           <p className="mt-1 font-mono text-[11px] text-muted-foreground">
             Found {discovered.size}/{layout.landmarks.length} · Coins{" "}
-            {collected.size}/{layout.coins.length} · Achievements {unlocked.size}/
+            {collected.size}/{layout.coins.length} · Trophies {unlocked.size}/
             {ACHIEVEMENTS.length}
           </p>
         </div>
@@ -66,6 +71,26 @@ export function FlightHud() {
               {flightCopy.returnPlatform}
             </button>
           </div>
+        </div>
+      ) : null}
+
+      {activeBay && !farFromPlatform ? (
+        <div className="pointer-events-auto absolute top-1/2 left-4 w-64 -translate-y-1/2 rounded-2xl border border-border bg-card/90 p-4 shadow-xl backdrop-blur-md sm:left-6">
+          <p
+            className="text-[10px] font-medium uppercase tracking-[0.2em]"
+            style={{ color: activeBay.accent }}
+          >
+            Exit · {activeBay.title}
+          </p>
+          <p className="mt-1 font-heading text-lg font-semibold">
+            {activeBay.subtitle}
+          </p>
+          <p className="mt-2 text-xs text-muted-foreground">{activeBay.blurb}</p>
+          {bayItemCount > 0 ? (
+            <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground/80">
+              {bayItemCount} stops in this bay
+            </p>
+          ) : null}
         </div>
       ) : null}
 
@@ -104,8 +129,8 @@ export function FlightHud() {
       ) : null}
 
       <p className="absolute inset-x-0 bottom-5 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/70">
-        WASD thrust/turn · Shift boost · Space jump · Ctrl dive · R return · M map · L
-        mute · Esc options
+        Cruise the circuit · take EXIT bays · WASD · Shift boost · Space / Ctrl · R
+        return
       </p>
 
       {mapOpen ? <MiniMap /> : null}
@@ -134,7 +159,7 @@ export function FlightHud() {
                 <span className="text-muted-foreground capitalize">{quality}</span>
               </button>
               <div className="rounded-xl border border-border px-4 py-3">
-                <p className="font-medium">Achievements</p>
+                <p className="font-medium">Flight trophies</p>
                 <ul className="mt-2 max-h-40 space-y-1 overflow-y-auto text-xs text-muted-foreground">
                   {ACHIEVEMENTS.map((a) => (
                     <li
@@ -171,6 +196,10 @@ function kindLabel(kind: string) {
       return "Project";
     case "skill":
       return "Technology";
+    case "hobby":
+      return "Hobby";
+    case "achievement":
+      return "Achievement";
     case "contact":
       return "Contact";
     case "resume":
@@ -201,14 +230,33 @@ function HudBtn({
 }
 
 function MiniMap() {
-  const { layout, discovered, nearLandmark } = useFlightWorld();
+  const { layout, discovered, nearLandmark, activeBay } = useFlightWorld();
   return (
     <div className="pointer-events-auto absolute bottom-16 left-4 overflow-hidden rounded-2xl border border-border bg-card/90 p-3 shadow-xl backdrop-blur-md sm:left-6">
       <p className="mb-2 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-        Map
+        Circuit map
       </p>
-      <svg viewBox="-40 -40 80 80" className="size-40 sm:size-48">
-        <rect x="-40" y="-40" width="80" height="80" fill="#12101c" />
+      <svg viewBox="-50 -40 100 80" className="size-40 sm:size-48">
+        <rect x="-50" y="-40" width="100" height="80" fill="#12101c" />
+        <ellipse
+          cx={0}
+          cy={0}
+          rx={30}
+          ry={22}
+          fill="none"
+          stroke="#3a4560"
+          strokeWidth={2.5}
+        />
+        {layout.bays.map((b) => (
+          <circle
+            key={b.id}
+            cx={b.center[0]}
+            cy={b.center[2]}
+            r={activeBay?.id === b.id ? 3.2 : 2.2}
+            fill={b.accent}
+            opacity={activeBay?.id === b.id ? 1 : 0.55}
+          />
+        ))}
         {layout.landmarks.map((l) => {
           const x = l.position[0];
           const z = l.position[2];
@@ -217,13 +265,13 @@ function MiniMap() {
               key={l.id}
               cx={x}
               cy={z}
-              r={nearLandmark?.id === l.id ? 2.2 : 1.4}
+              r={nearLandmark?.id === l.id ? 1.8 : 1}
               fill={discovered.has(l.id) ? l.accent : "#555"}
-              opacity={discovered.has(l.id) ? 1 : 0.5}
+              opacity={discovered.has(l.id) ? 1 : 0.45}
             />
           );
         })}
-        <circle cx={0} cy={28} r={1.8} fill="#fff" />
+        <circle cx={0} cy={26} r={1.6} fill="#fff" />
       </svg>
     </div>
   );

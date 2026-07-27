@@ -1,7 +1,8 @@
 export const flightCopy = {
   title: "Career Flight",
   hangarTitle: "Hangar",
-  hangarBody: "Pick a sky and a craft, then explore the career district.",
+  hangarBody:
+    "Pick a sky and a craft, then cruise the career circuit and take the exits.",
   launch: "Launch",
   land: "Land",
   cancel: "Cancel",
@@ -9,15 +10,15 @@ export const flightCopy = {
   returnPlatform: "Return to platform",
   deepSpaceTitle: "Deep space",
   deepSpaceBody:
-    "You’ve left the staging island. The galaxy stretches for hundreds of units — chase distant worlds, or return whenever you like.",
+    "You’ve left the career circuit. Roam the galaxy, or return to the loop whenever you like.",
   skyLabel: "Sky",
   craftLabel: "Craft",
   ctaHero: "Take Career Flight",
-  ctaExperience: "Explore the district",
-  footerAria: "Take a flight through my career district",
+  ctaExperience: "Cruise the circuit",
+  footerAria: "Take a flight through my career circuit",
   desktopOnly:
     "This easter egg is built for keyboard - try it on desktop.",
-  reducedMotionTitle: "Career district",
+  reducedMotionTitle: "Career circuit",
   contact: "Contact",
   resume: "Resume",
   openLink: "Open link",

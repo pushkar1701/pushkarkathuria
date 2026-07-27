@@ -28,7 +28,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: "project-scout",
     title: "Project scout",
-    description: "Visit all featured project pads.",
+    description: "Visit every project pad.",
   },
   {
     id: "crate-chaos",

@@ -95,7 +95,8 @@ export function FlightWorldHangar({
           {flightCopy.hangarTitle}
         </h1>
         <p className="mt-2 text-sm text-white/70">
-          Physics playground — pick a sky and craft, then crash around the island.
+          Physics playground — cruise the circuit, take EXIT bays for Companies,
+          Tech, Projects, Hobbies, and more.
         </p>
 
         <p className="mt-6 text-xs font-medium uppercase tracking-[0.2em] text-white/50">

@@ -14,6 +14,7 @@ import {
 } from "@/lib/flight-world/achievements";
 import {
   buildPlaygroundLayout,
+  type BayDef,
   type LandmarkDef,
   type PlaygroundLayout,
 } from "@/lib/flight-world/layout";
@@ -35,6 +36,9 @@ type FlightWorldStore = {
   setNearId: (id: string | null) => void;
   /** Dismiss the near card only if it still shows this landmark. */
   clearNearIf: (id: string) => void;
+  activeBay: BayDef | null;
+  setActiveBayId: (id: string | null) => void;
+  clearBayIf: (id: string) => void;
   collected: Set<string>;
   collect: (id: string) => void;
   smashed: number;
@@ -95,8 +99,15 @@ function evaluateUnlocks(args: {
 
   if (args.phase === "playing") grant("first-flight");
 
-  const companies = args.layout.landmarks.filter((l) => l.kind === "company");
-  if (companies.every((c) => args.discovered.has(c.id))) grant("company-tour");
+  const companies = args.layout.landmarks.filter(
+    (l) => l.kind === "company" && l.bayId === "companies",
+  );
+  if (
+    companies.length &&
+    companies.every((c) => args.discovered.has(c.id))
+  ) {
+    grant("company-tour");
+  }
 
   const projects = args.layout.landmarks.filter((l) => l.kind === "project");
   if (projects.length && projects.every((p) => args.discovered.has(p.id))) {
@@ -119,6 +130,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
   const [phase, setPhaseState] = useState<"hangar" | "playing">("hangar");
   const [discovered, setDiscovered] = useState<Set<string>>(() => new Set());
   const [nearId, setNearIdState] = useState<string | null>(null);
+  const [activeBayId, setActiveBayIdState] = useState<string | null>(null);
   const [collected, setCollected] = useState<Set<string>>(() => new Set());
   const [smashed, setSmashed] = useState(0);
   const [respawnToken, setRespawnToken] = useState(0);
@@ -196,6 +208,14 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
     setNearIdState((current) => (current === id ? null : current));
   }, []);
 
+  const setActiveBayId = useCallback((id: string | null) => {
+    setActiveBayIdState(id);
+  }, []);
+
+  const clearBayIf = useCallback((id: string) => {
+    setActiveBayIdState((current) => (current === id ? null : current));
+  }, []);
+
   const collect = useCallback(
     (id: string) => {
       setCollected((prev) => {
@@ -237,6 +257,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
   const respawn = useCallback(() => {
     setRespawnToken((n) => n + 1);
     setNearIdState(null);
+    setActiveBayIdState(null);
     setFarFromPlatform(false);
     setHasRespawned(true);
     playSfx("ui");
@@ -262,6 +283,11 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
     [layout.landmarks, nearId],
   );
 
+  const activeBay = useMemo(
+    () => layout.bays.find((b) => b.id === activeBayId) ?? null,
+    [layout.bays, activeBayId],
+  );
+
   const value = useMemo<FlightWorldStore>(
     () => ({
       layout,
@@ -272,6 +298,9 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
       nearLandmark,
       setNearId,
       clearNearIf,
+      activeBay,
+      setActiveBayId,
+      clearBayIf,
       collected,
       collect,
       smashed,
@@ -299,6 +328,9 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
       nearLandmark,
       setNearId,
       clearNearIf,
+      activeBay,
+      setActiveBayId,
+      clearBayIf,
       collected,
       collect,
       smashed,

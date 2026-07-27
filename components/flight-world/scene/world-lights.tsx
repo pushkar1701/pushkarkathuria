@@ -14,7 +14,7 @@ export function WorldLights({ sky }: { sky: SkyTheme }) {
   useEffect(() => {
     gl.setClearColor(sky.sky, 1);
     scene.background = new THREE.Color(sky.sky);
-    scene.fog = new THREE.FogExp2(sky.fog, 0.0065);
+    scene.fog = new THREE.FogExp2(sky.fog, 0.00155);
     return () => {
       scene.background = null;
       scene.fog = null;

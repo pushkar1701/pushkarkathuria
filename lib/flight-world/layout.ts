@@ -52,7 +52,11 @@ export const SPAWN: { position: Vec3; lookYaw: number } = {
 /** Leave staging when beyond this XZ distance from world origin. */
 export const PLATFORM_RADIUS = 48;
 
-export const WORLD_FALL_Y = -80;
+/** Soft floor before auto-return. */
+export const WORLD_FALL_Y = -320;
+
+/** Outer roam limit — beyond this the craft respawns. */
+export const GALAXY_HARD_VOID = 980;
 
 export type GalaxyPlanetDef = {
   id: string;
@@ -66,8 +70,9 @@ export type GalaxyPlanetDef = {
   customRingColor?: string;
 };
 
-/** Distant worlds — visual + solid obstacles in open space. */
+/** Distant worlds — visual + solid obstacles across deep space. */
 export const GALAXY_PLANETS: GalaxyPlanetDef[] = [
+  // Near orbit (just off the island)
   {
     id: "planet-coral",
     position: [-85, 38, -70],
@@ -91,6 +96,181 @@ export const GALAXY_PLANETS: GalaxyPlanetDef[] = [
     ring: true,
     ringColorFrom: "custom",
     customRingColor: "#ffe08a",
+  },
+  // Mid reach
+  {
+    id: "planet-ember",
+    position: [-160, 55, 90],
+    radius: 14,
+    colorFrom: "custom",
+    customColor: "#ff6a3d",
+  },
+  {
+    id: "planet-mint",
+    position: [180, 40, 60],
+    radius: 10,
+    colorFrom: "custom",
+    customColor: "#4dff9a",
+    ring: true,
+    ringColorFrom: "custom",
+    customRingColor: "#a8ffe0",
+  },
+  {
+    id: "planet-ice",
+    position: [-40, 70, -220],
+    radius: 18,
+    colorFrom: "custom",
+    customColor: "#b8e8ff",
+  },
+  {
+    id: "moon-ice-a",
+    position: [-55, 78, -235],
+    radius: 4,
+    colorFrom: "custom",
+    customColor: "#e8f4ff",
+  },
+  {
+    id: "planet-rose",
+    position: [220, 35, -150],
+    radius: 11,
+    colorFrom: "custom",
+    customColor: "#ff7ab8",
+  },
+  {
+    id: "planet-gold",
+    position: [60, -20, 200],
+    radius: 9,
+    colorFrom: "custom",
+    customColor: "#ffd24a",
+    ring: true,
+    ringColorFrom: "custom",
+    customRingColor: "#ffe9a8",
+  },
+  // Far systems
+  {
+    id: "planet-indigo",
+    position: [-280, 90, -180],
+    radius: 22,
+    colorFrom: "custom",
+    customColor: "#5a6bff",
+    ring: true,
+    ringColorFrom: "custom",
+    customRingColor: "#a0b0ff",
+  },
+  {
+    id: "moon-indigo-a",
+    position: [-305, 100, -165],
+    radius: 5,
+    colorFrom: "custom",
+    customColor: "#9aa6ff",
+  },
+  {
+    id: "moon-indigo-b",
+    position: [-260, 85, -205],
+    radius: 3.5,
+    colorFrom: "custom",
+    customColor: "#c8cfff",
+  },
+  {
+    id: "planet-crimson",
+    position: [310, 60, 120],
+    radius: 15,
+    colorFrom: "custom",
+    customColor: "#ff3d5a",
+  },
+  {
+    id: "planet-teal",
+    position: [140, 110, -320],
+    radius: 20,
+    colorFrom: "custom",
+    customColor: "#2ee6c5",
+    ring: true,
+    ringColorFrom: "brandSecondary",
+  },
+  {
+    id: "planet-sand",
+    position: [-200, 30, 280],
+    radius: 13,
+    colorFrom: "custom",
+    customColor: "#e8c090",
+  },
+  {
+    id: "planet-plasma",
+    position: [40, 140, 350],
+    radius: 17,
+    colorFrom: "custom",
+    customColor: "#ff5ed8",
+    ring: true,
+    ringColorFrom: "custom",
+    customRingColor: "#52f0ff",
+  },
+  // Deep frontier
+  {
+    id: "planet-giant",
+    position: [-420, 80, -380],
+    radius: 36,
+    colorFrom: "custom",
+    customColor: "#6a4cff",
+    ring: true,
+    ringColorFrom: "custom",
+    customRingColor: "#ffc86a",
+  },
+  {
+    id: "moon-giant-a",
+    position: [-470, 95, -360],
+    radius: 7,
+    colorFrom: "custom",
+    customColor: "#c9b8ff",
+  },
+  {
+    id: "moon-giant-b",
+    position: [-390, 70, -420],
+    radius: 5,
+    colorFrom: "custom",
+    customColor: "#ffe0a0",
+  },
+  {
+    id: "planet-hollow",
+    position: [480, 50, -280],
+    radius: 24,
+    colorFrom: "custom",
+    customColor: "#3a5068",
+  },
+  {
+    id: "planet-binary-a",
+    position: [360, -40, 400],
+    radius: 12,
+    colorFrom: "brand",
+  },
+  {
+    id: "planet-binary-b",
+    position: [390, -25, 420],
+    radius: 8,
+    colorFrom: "brandSecondary",
+  },
+  {
+    id: "planet-frost",
+    position: [-500, 120, 200],
+    radius: 19,
+    colorFrom: "custom",
+    customColor: "#d0fff0",
+    ring: true,
+    ringColorFrom: "custom",
+    customRingColor: "#ffffff",
+  },
+  {
+    id: "planet-obsidian",
+    position: [200, 160, 520],
+    radius: 14,
+    colorFrom: "custom",
+    customColor: "#2a1838",
+  },
+  {
+    id: "planet-sol",
+    position: [-100, 200, -550],
+    radius: 28,
+    colorFrom: "custom",
+    customColor: "#ffe08a",
   },
 ];
 
@@ -161,9 +341,10 @@ export function buildPlaygroundLayout() {
     const t = i / Math.max(1, experience.length - 1);
     const angle = -1.0 + t * 2.0;
     const r = 22;
+    // Drive-height beacons — readable without jumping
     const position: Vec3 = [
       Math.sin(angle) * r - 8,
-      3.5,
+      1.85,
       -Math.cos(angle) * r - 4,
     ];
     return {
@@ -179,7 +360,7 @@ export function buildPlaygroundLayout() {
 
   const featured = projects.filter((p) => p.featured);
   const projectLandmarks = featured.map((project, i) => {
-    const position: Vec3 = [24 + (i % 2) * 6, 3.2, -6 + Math.floor(i / 2) * 7];
+    const position: Vec3 = [24 + (i % 2) * 6, 1.85, -6 + Math.floor(i / 2) * 7];
     return {
       id: `project-${project.slug}`,
       kind: "project" as const,
@@ -201,7 +382,7 @@ export function buildPlaygroundLayout() {
   const skillLandmarks = techPicks.map((name, i) => {
     const col = i % 5;
     const row = Math.floor(i / 5);
-    const position: Vec3 = [-26 + col * 2.4, 2.6, -2 + row * 3.2];
+    const position: Vec3 = [-26 + col * 2.4, 1.7, -2 + row * 3.2];
     return {
       id: `skill-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
       kind: "skill" as const,
@@ -224,7 +405,7 @@ export function buildPlaygroundLayout() {
       subtitle: "Say hello",
       body: "Leave the playground for the contact section.",
       accent: "#4ec8d4",
-      position: [-26, 3, 14],
+      position: [-26, 1.85, 14],
       href: "/#contact",
     },
     {
@@ -234,7 +415,7 @@ export function buildPlaygroundLayout() {
       subtitle: "Full CV",
       body: "Open the resume page.",
       accent: "#e07050",
-      position: [12, 3, 22],
+      position: [12, 1.85, 22],
       href: "/resume",
     },
     {

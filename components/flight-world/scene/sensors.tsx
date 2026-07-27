@@ -1,18 +1,33 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { RigidBody } from "@react-three/rapier";
+import { BallCollider, RigidBody } from "@react-three/rapier";
 import * as THREE from "three";
 import type { SkyTheme } from "@/lib/flight/loadout";
 import type { CoinDef, LandmarkDef } from "@/lib/flight-world/layout";
 import { useFlightWorld } from "../store";
 
+function sensorRadius(kind: LandmarkDef["kind"]) {
+  if (kind === "secret") return 1.5;
+  if (kind === "company" || kind === "project" || kind === "skill") return 2.75;
+  return 2.4;
+}
+
 function LandmarkBeacon({ landmark }: { landmark: LandmarkDef }) {
-  const { discovered, discover, setNearId, nearLandmark } = useFlightWorld();
+  const { discovered, discover, setNearId, clearNearIf, nearLandmark } =
+    useFlightWorld();
   const isNear = nearLandmark?.id === landmark.id;
   const mesh = useRef<THREE.Mesh>(null);
+  const clearTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const found = discovered.has(landmark.id);
+  const radius = sensorRadius(landmark.kind);
+
+  useEffect(() => {
+    return () => {
+      if (clearTimer.current) clearTimeout(clearTimer.current);
+    };
+  }, []);
 
   useFrame(({ clock }) => {
     if (!mesh.current) return;
@@ -30,23 +45,35 @@ function LandmarkBeacon({ landmark }: { landmark: LandmarkDef }) {
     <RigidBody
       type="fixed"
       position={landmark.position}
-      colliders="ball"
+      colliders={false}
       sensor
       onIntersectionEnter={() => {
+        if (clearTimer.current) {
+          clearTimeout(clearTimer.current);
+          clearTimer.current = null;
+        }
         discover(landmark.id);
         setNearId(landmark.id);
       }}
       onIntersectionExit={() => {
-        if (nearLandmark?.id === landmark.id) setNearId(null);
+        // Keep the info card up briefly so gravity drop doesn't yank it away
+        if (clearTimer.current) clearTimeout(clearTimer.current);
+        clearTimer.current = setTimeout(() => {
+          clearNearIf(landmark.id);
+          clearTimer.current = null;
+        }, 3200);
       }}
     >
-      <mesh ref={mesh}>
+      <BallCollider args={[radius]} />
+      <mesh ref={mesh} frustumCulled={false}>
         {landmark.kind === "secret" ? (
           <octahedronGeometry args={[1.1, 0]} />
         ) : landmark.kind === "project" ? (
           <boxGeometry args={[1.6, 1.6, 1.6]} />
         ) : landmark.kind === "skill" ? (
           <dodecahedronGeometry args={[1.05, 0]} />
+        ) : landmark.kind === "company" ? (
+          <boxGeometry args={[1.5, 1.5, 1.5]} />
         ) : (
           <icosahedronGeometry args={[1.15, 0]} />
         )}

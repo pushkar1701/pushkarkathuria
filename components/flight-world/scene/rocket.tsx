@@ -19,6 +19,7 @@ import {
 } from "@/lib/flight/controls";
 import type { CraftDef } from "@/lib/flight/loadout";
 import {
+  GALAXY_HARD_VOID,
   PLATFORM_RADIUS,
   SPAWN,
   WORLD_FALL_Y,
@@ -27,14 +28,13 @@ import { playSfx } from "../audio";
 import { useFlightWorld } from "../store";
 
 const CRUISE_SPEED = 16;
-const BOOST_SPEED = 12;
-const OPEN_SPACE_BONUS = 6;
+const BOOST_SPEED = 14;
+const OPEN_SPACE_BONUS = 10;
 const TURN_RATE = 2.4;
 const JUMP = 12;
 const DIVE = -11;
 const CHASE_DISTANCE = 14;
 const CAMERA_DAMPING = 3.2;
-const HARD_VOID = 280;
 const TRAIL_COUNT = 56;
 
 type SmokePuff = {
@@ -218,8 +218,9 @@ export function Rocket({ craft }: { craft: CraftDef }) {
       !Number.isFinite(t.x) ||
       !Number.isFinite(t.y) ||
       !Number.isFinite(t.z) ||
-      planar > HARD_VOID ||
-      t.y < WORLD_FALL_Y
+      planar > GALAXY_HARD_VOID ||
+      t.y < WORLD_FALL_Y ||
+      t.y > GALAXY_HARD_VOID * 0.65
     ) {
       respawn();
       return;

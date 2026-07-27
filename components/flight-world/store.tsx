@@ -33,6 +33,8 @@ type FlightWorldStore = {
   discover: (id: string) => void;
   nearLandmark: LandmarkDef | null;
   setNearId: (id: string | null) => void;
+  /** Dismiss the near card only if it still shows this landmark. */
+  clearNearIf: (id: string) => void;
   collected: Set<string>;
   collect: (id: string) => void;
   smashed: number;
@@ -116,7 +118,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
   const layout = useMemo(() => buildPlaygroundLayout(), []);
   const [phase, setPhaseState] = useState<"hangar" | "playing">("hangar");
   const [discovered, setDiscovered] = useState<Set<string>>(() => new Set());
-  const [nearId, setNearId] = useState<string | null>(null);
+  const [nearId, setNearIdState] = useState<string | null>(null);
   const [collected, setCollected] = useState<Set<string>>(() => new Set());
   const [smashed, setSmashed] = useState(0);
   const [respawnToken, setRespawnToken] = useState(0);
@@ -186,6 +188,14 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
     [applyUnlocks, collected, smashed, hasRespawned, phase],
   );
 
+  const setNearId = useCallback((id: string | null) => {
+    setNearIdState(id);
+  }, []);
+
+  const clearNearIf = useCallback((id: string) => {
+    setNearIdState((current) => (current === id ? null : current));
+  }, []);
+
   const collect = useCallback(
     (id: string) => {
       setCollected((prev) => {
@@ -226,7 +236,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
 
   const respawn = useCallback(() => {
     setRespawnToken((n) => n + 1);
-    setNearId(null);
+    setNearIdState(null);
     setFarFromPlatform(false);
     setHasRespawned(true);
     playSfx("ui");
@@ -261,6 +271,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
       discover,
       nearLandmark,
       setNearId,
+      clearNearIf,
       collected,
       collect,
       smashed,
@@ -286,6 +297,8 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
       discovered,
       discover,
       nearLandmark,
+      setNearId,
+      clearNearIf,
       collected,
       collect,
       smashed,

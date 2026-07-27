@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { ACHIEVEMENTS } from "./achievements";
-import { buildPlaygroundLayout, SECTION_BANNERS } from "./layout";
+import {
+  buildPlaygroundLayout,
+  GALAXY_HARD_VOID,
+  GALAXY_PLANETS,
+  SECTION_BANNERS,
+} from "./layout";
 
 describe("buildPlaygroundLayout", () => {
   it("includes companies, projects, skills, pads, secrets, toys", () => {
@@ -31,6 +36,17 @@ describe("SECTION_BANNERS", () => {
     assert.ok(titles.includes("Projects"));
     assert.ok(titles.includes("Technologies"));
     assert.ok(SECTION_BANNERS.length >= 5);
+  });
+});
+
+describe("galaxy scale", () => {
+  it("spreads many planets across a large roam radius", () => {
+    assert.ok(GALAXY_PLANETS.length >= 18);
+    assert.ok(GALAXY_HARD_VOID >= 800);
+    const farthest = Math.max(
+      ...GALAXY_PLANETS.map((p) => Math.hypot(p.position[0], p.position[2])),
+    );
+    assert.ok(farthest > 400);
   });
 });
 

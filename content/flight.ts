@@ -9,7 +9,7 @@ export const flightCopy = {
   returnPlatform: "Return to platform",
   deepSpaceTitle: "Deep space",
   deepSpaceBody:
-    "You’ve left the staging island. Keep roaming the galaxy, or head back whenever you like.",
+    "You’ve left the staging island. The galaxy stretches for hundreds of units — chase distant worlds, or return whenever you like.",
   skyLabel: "Sky",
   craftLabel: "Craft",
   ctaHero: "Take Career Flight",

@@ -73,7 +73,7 @@ export function FlightWorldCanvas({
         ],
         fov: 55,
         near: 0.1,
-        far: 450,
+        far: 2200,
       }}
       gl={{
         antialias: rich,

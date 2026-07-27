@@ -26,6 +26,7 @@ import {
 } from "@/lib/flight-world/layout";
 import { playSfx } from "../audio";
 import { useFlightWorld } from "../store";
+import { ROCKET_NAME } from "./shooting-stars";
 
 const CRUISE_SPEED = 16;
 const BOOST_SPEED = 14;
@@ -115,7 +116,7 @@ function BoostSmokeTrail({
 export function Rocket({ craft }: { craft: CraftDef }) {
   const body = useRef<RapierRigidBody>(null);
   const { camera } = useThree();
-  const { respawnToken, respawn, farFromPlatform, setFarFromPlatform } =
+  const { respawnToken, respawn, farFromPlatform, setFarFromPlatform, rocketWorldPosRef } =
     useFlightWorld();
   const keys = useMemo(() => createKeyState(), []);
   const desiredCam = useMemo(() => new THREE.Vector3(), []);
@@ -206,6 +207,7 @@ export function Rocket({ craft }: { craft: CraftDef }) {
     const now = clock.elapsedTime;
 
     const t = rb.translation();
+    rocketWorldPosRef.current = [t.x, t.y, t.z];
     const planar = Math.hypot(t.x, t.z);
     const far = planar > PLATFORM_RADIUS || t.y > 32 || t.y < -8;
 
@@ -345,6 +347,7 @@ export function Rocket({ craft }: { craft: CraftDef }) {
     <>
       <RigidBody
         ref={body}
+        name={ROCKET_NAME}
         position={SPAWN.position}
         colliders={false}
         linearDamping={0.2}

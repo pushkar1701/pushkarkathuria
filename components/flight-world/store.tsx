@@ -5,7 +5,9 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
+  type MutableRefObject,
   type ReactNode,
 } from "react";
 import {
@@ -14,9 +16,11 @@ import {
 } from "@/lib/flight-world/achievements";
 import {
   buildPlaygroundLayout,
+  SPAWN,
   type BayDef,
   type LandmarkDef,
   type PlaygroundLayout,
+  type Vec3,
 } from "@/lib/flight-world/layout";
 import {
   getFlightMuted,
@@ -47,6 +51,8 @@ type FlightWorldStore = {
   respawn: () => void;
   farFromPlatform: boolean;
   setFarFromPlatform: (value: boolean) => void;
+  /** Updated each frame by the rocket — for deep-space effects. */
+  rocketWorldPosRef: MutableRefObject<Vec3>;
   muted: boolean;
   toggleMute: () => void;
   mapOpen: boolean;
@@ -141,6 +147,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
   const [unlocked, setUnlocked] = useState<Set<AchievementId>>(loadAchievements);
   const [quality, setQuality] = useState<"high" | "low">("high");
   const [hasRespawned, setHasRespawned] = useState(false);
+  const rocketWorldPosRef = useRef<Vec3>([...SPAWN.position]);
 
   const applyUnlocks = useCallback(
     (snapshot: {
@@ -309,6 +316,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
       respawn,
       farFromPlatform,
       setFarFromPlatform,
+      rocketWorldPosRef,
       muted,
       toggleMute,
       mapOpen,
@@ -338,6 +346,7 @@ export function FlightWorldProvider({ children }: { children: ReactNode }) {
       respawnToken,
       respawn,
       farFromPlatform,
+      rocketWorldPosRef,
       muted,
       toggleMute,
       mapOpen,

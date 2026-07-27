@@ -10,7 +10,7 @@ export const flightCopy = {
   returnPlatform: "Return to platform",
   deepSpaceTitle: "Deep space",
   deepSpaceBody:
-    "You’ve left the career circuit. Roam the galaxy, or return to the loop whenever you like.",
+    "You’ve left the career circuit. Shooting stars streak through deep space — catch one to snap back to the loop, or return whenever you like.",
   skyLabel: "Sky",
   craftLabel: "Craft",
   ctaHero: "Take Career Flight",

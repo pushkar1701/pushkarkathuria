@@ -18,6 +18,7 @@ import { PlanetObstacles } from "./planet-obstacles";
 import { Rocket } from "./rocket";
 import { SectionBanners } from "./section-banners";
 import { Sensors } from "./sensors";
+import { ShootingStars } from "./shooting-stars";
 import { Toys } from "./toys";
 import { WorldLights } from "./world-lights";
 
@@ -41,6 +42,7 @@ function SceneBody({
         <SectionBanners />
         <Toys sky={sky} />
         <PlanetObstacles sky={sky} />
+        <ShootingStars sky={sky} rich={rich} />
         <Sensors sky={sky} />
         <Rocket craft={craft} />
       </Physics>
